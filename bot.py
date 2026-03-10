@@ -1,4 +1,5 @@
 import os
+import asyncio
 import logging
 from telegram.ext import (
     Application, CommandHandler, CallbackQueryHandler,
@@ -21,16 +22,9 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-async def post_init(application):
-    await init_db()
-    logger.info("✅ Bot ishga tushdi!")
-
-def main():
+def build_app():
     BOT_TOKEN = os.getenv("BOT_TOKEN")
-    RENDER_URL = os.getenv("RENDER_EXTERNAL_URL", "")
-    PORT = int(os.getenv("PORT", 10000))
-
-    app = Application.builder().token(BOT_TOKEN).post_init(post_init).build()
+    app = Application.builder().token(BOT_TOKEN).build()
 
     test_conv = ConversationHandler(
         entry_points=[
@@ -46,7 +40,8 @@ def main():
             ],
         },
         fallbacks=[CommandHandler("cancel", user_cancel)],
-        allow_reentry=True
+        allow_reentry=True,
+        per_message=False,
     )
 
     admin_create_conv = ConversationHandler(
@@ -62,7 +57,8 @@ def main():
             ],
         },
         fallbacks=[CommandHandler("cancel", admin_cancel)],
-        allow_reentry=True
+        allow_reentry=True,
+        per_message=False,
     )
 
     app.add_handler(CommandHandler("start", start))
@@ -74,17 +70,40 @@ def main():
     app.add_handler(CallbackQueryHandler(admin_callback, pattern="^end_"))
     app.add_handler(CallbackQueryHandler(menu_callback, pattern="^(about|go_admin)$"))
 
+    return app
+
+async def main():
+    await init_db()
+    logger.info("✅ Database tayyor!")
+
+    BOT_TOKEN = os.getenv("BOT_TOKEN")
+    RENDER_URL = os.getenv("RENDER_EXTERNAL_URL", "")
+    PORT = int(os.getenv("PORT", 10000))
+
+    app = build_app()
+
     if RENDER_URL:
         logger.info(f"Webhook mode: {RENDER_URL}")
-        app.run_webhook(
-            listen="0.0.0.0",
-            port=PORT,
-            webhook_url=f"{RENDER_URL}/{BOT_TOKEN}",
-            url_path=BOT_TOKEN,
+        await app.bot.set_webhook(
+            url=f"{RENDER_URL}/{BOT_TOKEN}",
+            allowed_updates=["message", "callback_query"]
         )
+        async with app:
+            await app.start()
+            await app.updater.start_webhook(
+                listen="0.0.0.0",
+                port=PORT,
+                url_path=BOT_TOKEN,
+            )
+            logger.info(f"Bot ishga tushdi! Port: {PORT}")
+            await asyncio.Event().wait()
     else:
         logger.info("Polling mode (lokal)")
-        app.run_polling(drop_pending_updates=True)
+        async with app:
+            await app.start()
+            await app.updater.start_polling(drop_pending_updates=True)
+            logger.info("Polling boshlandi!")
+            await asyncio.Event().wait()
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
