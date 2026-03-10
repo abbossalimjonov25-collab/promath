@@ -84,26 +84,28 @@ async def main():
 
     if RENDER_URL:
         logger.info(f"Webhook mode: {RENDER_URL}")
-        await app.bot.set_webhook(
-            url=f"{RENDER_URL}/{BOT_TOKEN}",
-            allowed_updates=["message", "callback_query"]
-        )
+        webhook_url = f"{RENDER_URL}/{BOT_TOKEN}"
         async with app:
             await app.start()
             await app.updater.start_webhook(
                 listen="0.0.0.0",
                 port=PORT,
                 url_path=BOT_TOKEN,
+                webhook_url=webhook_url,
             )
-            logger.info(f"Bot ishga tushdi! Port: {PORT}")
+            logger.info(f"✅ Bot ishga tushdi! Port: {PORT}")
             await asyncio.Event().wait()
+            await app.updater.stop()
+            await app.stop()
     else:
         logger.info("Polling mode (lokal)")
         async with app:
             await app.start()
             await app.updater.start_polling(drop_pending_updates=True)
-            logger.info("Polling boshlandi!")
+            logger.info("✅ Polling boshlandi!")
             await asyncio.Event().wait()
+            await app.updater.stop()
+            await app.stop()
 
 if __name__ == "__main__":
     asyncio.run(main())
