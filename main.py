@@ -288,8 +288,9 @@ async def profile_callback(update: Update, context):
     user = query.from_user
 
     db_user = await get_user(user.id)
-
     name = db_user['full_name'] if db_user else user.full_name
+    # Markdown uchun xavfli belgilarni tozalash
+    safe_name = str(name).replace('*', '').replace('_', '').replace('`', '').replace('[', '')
     username = f"@{user.username}" if user.username else "Yo'q"
 
     keyboard = [
@@ -297,13 +298,12 @@ async def profile_callback(update: Update, context):
         [InlineKeyboardButton("🔙 Orqaga", callback_data="back_menu")],
     ]
     await query.edit_message_text(
-        f"👤 *Profilingiz*\n\n"
-        f"📛 Ism: *{name}*\n"
-        f"🆔 ID: `{user.id}`\n"
+        f"👤 Profilingiz\n\n"
+        f"📛 Ism: {safe_name}\n"
+        f"🆔 ID: {user.id}\n"
         f"👤 Username: {username}\n\n"
         f"Ismingizni o'zgartirish uchun tugmani bosing:",
-        reply_markup=InlineKeyboardMarkup(keyboard),
-        parse_mode="Markdown"
+        reply_markup=InlineKeyboardMarkup(keyboard)
     )
 
 async def edit_name_callback(update: Update, context):
@@ -347,9 +347,8 @@ async def receive_new_name(update: Update, context):
     ]
     await context.bot.send_message(
         chat_id=user.id,
-        text=f"✅ *Ism muvaffaqiyatli o'zgartirildi!*\n\n📛 Yangi ism: *{new_name}*",
-        reply_markup=InlineKeyboardMarkup(keyboard),
-        parse_mode="Markdown"
+        text=f"✅ Ism muvaffaqiyatli o'zgartirildi!\n\n📛 Yangi ism: {new_name}",
+        reply_markup=InlineKeyboardMarkup(keyboard)
     )
     return ConversationHandler.END
 
@@ -361,6 +360,7 @@ async def cancel_edit_callback(update: Update, context):
 
     db_user = await get_user(user.id)
     name = db_user['full_name'] if db_user else user.full_name
+    safe_name = str(name).replace('*', '').replace('_', '').replace('`', '').replace('[', '')
     username = f"@{user.username}" if user.username else "Yo'q"
 
     keyboard = [
@@ -368,12 +368,11 @@ async def cancel_edit_callback(update: Update, context):
         [InlineKeyboardButton("🔙 Orqaga", callback_data="back_menu")],
     ]
     await query.edit_message_text(
-        f"👤 *Profilingiz*\n\n"
-        f"📛 Ism: *{name}*\n"
-        f"🆔 ID: `{user.id}`\n"
+        f"👤 Profilingiz\n\n"
+        f"📛 Ism: {safe_name}\n"
+        f"🆔 ID: {user.id}\n"
         f"👤 Username: {username}",
-        reply_markup=InlineKeyboardMarkup(keyboard),
-        parse_mode="Markdown"
+        reply_markup=InlineKeyboardMarkup(keyboard)
     )
     return ConversationHandler.END
 
