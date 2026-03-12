@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Admin Panel</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f1923; color: white; min-height: 100vh; }
+
+.screen { display: none; min-height: 100vh; flex-direction: column; }
+.screen.active { display: flex; }
+
+.header { background: linear-gradient(135deg, #1a3a5c, #0d2137); padding: 16px 20px; flex-shrink: 0; }
+.header-top { display: flex; align-items: center; justify-content: space-between; }
+.header h2 { font-size: 18px; font-weight: 700; }
+.header p { font-size: 13px; color: rgba(255,255,255,0.5); margin-top: 2px; }
+.admin-badge { background: rgba(126,184,247,0.15); color: #7eb8f7; font-size: 11px; padding: 4px 10px; border-radius: 20px; font-weight: 600; }
+
+.tabs { display: flex; background: rgba(255,255,255,0.04); border-bottom: 1px solid rgba(255,255,255,0.06); flex-shrink: 0; }
+.tab { flex: 1; padding: 14px; font-size: 13px; font-weight: 600; text-align: center; color: rgba(255,255,255,0.4); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; }
+.tab.active { color: #7eb8f7; border-bottom-color: #7eb8f7; }
+
+.content { flex: 1; overflow-y: auto; padding: 20px; }
+
+/* CREATE TAB */
+.form-group { margin-bottom: 18px; }
+.form-label { font-size: 11px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 8px; }
+.form-select { width: 100%; background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 12px 16px; font-size: 15px; color: white; outline: none; appearance: none; }
+.form-select option { background: #1a3a5c; color: white; }
+.form-textarea { width: 100%; background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 14px 16px; font-size: 14px; color: white; outline: none; resize: none; min-height: 100px; line-height: 1.6; font-family: monospace; }
+.form-textarea:focus, .form-select:focus { border-color: #7eb8f7; }
+.form-textarea::placeholder { color: rgba(255,255,255,0.25); font-family: -apple-system, sans-serif; }
+
+.keys-preview { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-top: 10px; }
+.key-cell { background: rgba(126,184,247,0.08); border: 1px solid rgba(126,184,247,0.2); border-radius: 8px; padding: 8px 4px; text-align: center; }
+.key-num { font-size: 10px; color: rgba(255,255,255,0.3); display: block; }
+.key-val { font-size: 15px; font-weight: 700; color: #7eb8f7; display: block; }
+.keys-count { font-size: 13px; color: rgba(255,255,255,0.4); margin-top: 8px; }
+
+.btn-create { width: 100%; background: #7eb8f7; color: #0d2137; border: none; border-radius: 14px; padding: 16px; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 8px; transition: opacity 0.2s; }
+.btn-create:disabled { opacity: 0.5; }
+
+/* SUCCESS */
+.success-card { background: rgba(93,202,149,0.1); border: 1px solid rgba(93,202,149,0.3); border-radius: 16px; padding: 20px; text-align: center; margin-top: 16px; display: none; }
+.success-code { font-size: 36px; font-weight: 800; color: #5dca95; letter-spacing: 4px; margin: 12px 0; }
+.success-card p { color: rgba(255,255,255,0.6); font-size: 14px; }
+.copy-btn { background: rgba(93,202,149,0.15); color: #5dca95; border: 1px solid rgba(93,202,149,0.3); border-radius: 10px; padding: 10px 20px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 12px; }
+
+/* TESTS LIST */
+.test-item { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 16px; margin-bottom: 10px; }
+.test-item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.test-code-badge { font-size: 18px; font-weight: 800; color: #7eb8f7; letter-spacing: 2px; }
+.test-status { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; }
+.status-active { background: rgba(93,202,149,0.15); color: #5dca95; }
+.status-ended { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.4); }
+.test-info { font-size: 13px; color: rgba(255,255,255,0.5); display: flex; gap: 12px; margin-bottom: 10px; }
+.test-actions { display: flex; gap: 8px; }
+.btn-end { flex: 1; background: rgba(240,123,123,0.1); color: #f07b7b; border: 1px solid rgba(240,123,123,0.2); border-radius: 10px; padding: 10px; font-size: 13px; font-weight: 600; cursor: pointer; }
+.btn-results { flex: 1; background: rgba(126,184,247,0.1); color: #7eb8f7; border: 1px solid rgba(126,184,247,0.2); border-radius: 10px; padding: 10px; font-size: 13px; font-weight: 600; cursor: pointer; }
+
+/* RESULTS MODAL */
+.modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 50; overflow-y: auto; padding: 20px; }
+.modal.show { display: block; }
+.modal-card { background: #131f2e; border-radius: 20px; overflow: hidden; }
+.modal-header { background: linear-gradient(135deg, #1a3a5c, #0d2137); padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; }
+.modal-header h3 { font-size: 16px; font-weight: 700; }
+.modal-close { background: rgba(255,255,255,0.1); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.result-row { display: flex; align-items: center; padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.04); gap: 12px; }
+.rank-badge { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+.rank-1 { background: rgba(255,215,0,0.2); color: #ffd700; }
+.rank-2 { background: rgba(192,192,192,0.2); color: #c0c0c0; }
+.rank-3 { background: rgba(205,127,50,0.2); color: #cd7f32; }
+.rank-other { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.4); }
+.result-name { flex: 1; font-size: 14px; font-weight: 500; }
+.result-pct { font-size: 15px; font-weight: 700; color: #7eb8f7; }
+
+.loading { position: fixed; inset: 0; background: rgba(15,25,35,0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; display: none; }
+.spinner { width: 40px; height: 40px; border: 3px solid rgba(126,184,247,0.2); border-top-color: #7eb8f7; border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 14px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.empty { text-align: center; padding: 40px; color: rgba(255,255,255,0.3); }
+.empty p { font-size: 14px; margin-top: 8px; }
+</style>
+</head>
+<body>
+
+<div class="loading" id="loading">
+  <div class="spinner"></div>
+  <p style="color:rgba(255,255,255,0.5);font-size:14px;">Yuklanmoqda...</p>
+</div>
+
+<div class="modal" id="resultsModal">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3 id="modalTitle">Natijalar</h3>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<!-- MAIN SCREEN -->
+<div class="screen active" id="mainScreen">
+  <div class="header">
+    <div class="header-top">
+      <div>
+        <h2>Admin Panel</h2>
+        <p>Testlarni boshqarish</p>
+      </div>
+      <span class="admin-badge">ADMIN</span>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" id="tab1" onclick="switchTab('create')">➕ Yaratish</div>
+    <div class="tab" id="tab2" onclick="switchTab('tests')">📋 Testlar</div>
+  </div>
+
+  <!-- CREATE TAB -->
+  <div class="content" id="createTab">
+    <div class="form-group">
+      <label class="form-label">Fan tanlang</label>
+      <select class="form-select" id="subjectSelect">
+        <option value="Matematika">📐 Matematika</option>
+        <option value="Fizika">⚡ Fizika</option>
+        <option value="Kimyo">🧪 Kimyo</option>
+        <option value="Biologiya">🌿 Biologiya</option>
+        <option value="Ingliz tili">🌍 Ingliz tili</option>
+        <option value="Ona tili">📖 Ona tili</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Test kalitlari</label>
+      <textarea class="form-textarea" id="answersInput" placeholder="1A2B3C4D5A6B7C8D9A10B&#10;&#10;yoki faqat harflar: ABCDABCDAB" oninput="previewKeys()"></textarea>
+      <div class="keys-preview" id="keysPreview" style="display:none"></div>
+      <p class="keys-count" id="keysCount"></p>
+    </div>
+
+    <button class="btn-create" id="createBtn" onclick="createTest()">Test yaratish →</button>
+
+    <div class="success-card" id="successCard">
+      <p>Test muvaffaqiyatli yaratildi!</p>
+      <div class="success-code" id="successCode">ABC123</div>
+      <p id="successInfo">30 ta savol · Matematika</p>
+      <button class="copy-btn" onclick="copyCode()">📋 Kodni nusxalash</button>
+    </div>
+  </div>
+
+  <!-- TESTS TAB -->
+  <div class="content" id="testsTab" style="display:none">
+    <div id="testsList"></div>
+  </div>
+</div>
+
+<script>
+const tg = window.Telegram.WebApp;
+tg.ready();
+tg.expand();
+
+const BASE_URL = window.location.origin;
+const ADMIN_ID = tg.initDataUnsafe?.user?.id || 0;
+let parsedKeys = {};
+let createdCode = '';
+
+function switchTab(tab) {
+  document.getElementById('createTab').style.display = tab === 'create' ? 'block' : 'none';
+  document.getElementById('testsTab').style.display = tab === 'tests' ? 'block' : 'none';
+  document.getElementById('tab1').className = 'tab' + (tab === 'create' ? ' active' : '');
+  document.getElementById('tab2').className = 'tab' + (tab === 'tests' ? ' active' : '');
+  if (tab === 'tests') loadTests();
+}
+
+function parseAnswers(text) {
+  const result = {};
+  const clean = text.toUpperCase().replace(/[\s\-\.,]/g, '');
+  let i = 0;
+  while (i < clean.length) {
+    let num = '';
+    while (i < clean.length && /\d/.test(clean[i])) num += clean[i++];
+    if (num && i < clean.length && /[A-D]/.test(clean[i])) {
+      result[parseInt(num)] = clean[i++];
+    } else i++;
+  }
+  if (Object.keys(result).length === 0) {
+    const letters = clean.replace(/[^A-D]/g, '');
+    for (let j = 0; j < letters.length; j++) result[j+1] = letters[j];
+  }
+  return result;
+}
+
+function previewKeys() {
+  const text = document.getElementById('answersInput').value;
+  parsedKeys = parseAnswers(text);
+  const count = Object.keys(parsedKeys).length;
+  const preview = document.getElementById('keysPreview');
+  const countEl = document.getElementById('keysCount');
+
+  if (count === 0) {
+    preview.style.display = 'none';
+    countEl.textContent = '';
+    return;
+  }
+
+  preview.style.display = 'grid';
+  countEl.textContent = `${count} ta savol kaliti aniqlandi`;
+  preview.innerHTML = '';
+  Object.entries(parsedKeys).slice(0, 10).forEach(([num, val]) => {
+    preview.innerHTML += `<div class="key-cell"><span class="key-num">${num}</span><span class="key-val">${val}</span></div>`;
+  });
+  if (count > 10) {
+    preview.innerHTML += `<div class="key-cell"><span class="key-num">...</span><span class="key-val" style="font-size:12px">+${count-10}</span></div>`;
+  }
+}
+
+async function createTest() {
+  if (Object.keys(parsedKeys).length === 0) {
+    alert('Kalitlarni kiriting!');
+    return;
+  }
+  const subject = document.getElementById('subjectSelect').value;
+  const btn = document.getElementById('createBtn');
+  btn.disabled = true;
+  btn.textContent = 'Yaratilmoqda...';
+
+  const answersStr = Object.entries(parsedKeys).map(([k,v]) => `${k}${v}`).join('');
+
+  try {
+    const res = await fetch(`${BASE_URL}/api/admin/create-test`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ admin_id: ADMIN_ID, answers: answersStr, subject })
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+
+    createdCode = data.test_code;
+    document.getElementById('successCode').textContent = data.test_code;
+    document.getElementById('successInfo').textContent = `${data.total_questions} ta savol · ${subject}`;
+    document.getElementById('successCard').style.display = 'block';
+    document.getElementById('answersInput').value = '';
+    document.getElementById('keysPreview').style.display = 'none';
+    document.getElementById('keysCount').textContent = '';
+    parsedKeys = {};
+
+    tg.HapticFeedback.notificationOccurred('success');
+  } catch(e) {
+    alert('Xatolik: ' + e.message);
+  }
+  btn.disabled = false;
+  btn.textContent = 'Test yaratish →';
+}
+
+function copyCode() {
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(createdCode);
+  }
+  tg.HapticFeedback.impactOccurred('light');
+  document.querySelector('.copy-btn').textContent = '✅ Nusxalandi!';
+  setTimeout(() => document.querySelector('.copy-btn').textContent = '📋 Kodni nusxalash', 2000);
+}
+
+async function loadTests() {
+  const container = document.getElementById('testsList');
+  container.innerHTML = '<p style="text-align:center;color:rgba(255,255,255,0.3);padding:20px;">Yuklanmoqda...</p>';
+  try {
+    const res = await fetch(`${BASE_URL}/api/admin/tests/${ADMIN_ID}`);
+    const tests = await res.json();
+    if (!tests.length) {
+      container.innerHTML = '<div class="empty"><div style="font-size:40px">📭</div><p>Hali test yaratilmagan</p></div>';
+      return;
+    }
+    container.innerHTML = tests.map(t => `
+      <div class="test-item">
+        <div class="test-item-header">
+          <span class="test-code-badge">${t.test_code}</span>
+          <span class="test-status ${t.is_active ? 'status-active' : 'status-ended'}">${t.is_active ? '● Faol' : '○ Tugagan'}</span>
+        </div>
+        <div class="test-info">
+          <span>${t.subject}</span>
+          <span>${t.total_questions} savol</span>
+          <span>${t.created_at}</span>
+        </div>
+        <div class="test-actions">
+          ${t.is_active ? `<button class="btn-end" onclick="endTest('${t.test_code}')">🛑 To'xtatish</button>` : ''}
+          <button class="btn-results" onclick="showResults('${t.test_code}')">📊 Natijalar</button>
+        </div>
+      </div>
+    `).join('');
+  } catch(e) {
+    container.innerHTML = '<p style="text-align:center;color:#f07b7b;padding:20px;">Xatolik yuz berdi</p>';
+  }
+}
+
+async function endTest(testCode) {
+  if (!confirm(`"${testCode}" testini to'xtatmoqchimisiz? O'quvchilarga sertifikat yuboriladi.`)) return;
+  showLoader();
+  try {
+    const res = await fetch(`${BASE_URL}/api/admin/end-test`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ admin_id: ADMIN_ID, test_code: testCode })
+    });
+    const data = await res.json();
+    hideLoader();
+    if (data.success) {
+      tg.HapticFeedback.notificationOccurred('success');
+      alert(`✅ Test to'xtatildi!\n👥 ${data.participants} ta o'quvchiga sertifikat yuborildi.`);
+      loadTests();
+    }
+  } catch(e) {
+    hideLoader();
+    alert('Xatolik yuz berdi');
+  }
+}
+
+async function showResults(testCode) {
+  document.getElementById('modalTitle').textContent = `${testCode} — Natijalar`;
+  document.getElementById('modalContent').innerHTML = '<p style="text-align:center;padding:20px;color:rgba(255,255,255,0.4);">Yuklanmoqda...</p>';
+  document.getElementById('resultsModal').className = 'modal show';
+
+  try {
+    const res = await fetch(`${BASE_URL}/api/admin/results/${testCode}`);
+    const results = await res.json();
+    if (!results.length) {
+      document.getElementById('modalContent').innerHTML = '<div class="empty"><p>Hali hech kim topshirmadi</p></div>';
+      return;
+    }
+    document.getElementById('modalContent').innerHTML = results.map(r => {
+      const rankClass = r.rank <= 3 ? `rank-${r.rank}` : 'rank-other';
+      return `<div class="result-row">
+        <div class="rank-badge ${rankClass}">${r.rank}</div>
+        <div class="result-name">${r.full_name}<br><span style="font-size:11px;color:rgba(255,255,255,0.3);">${r.username ? '@'+r.username : ''}</span></div>
+        <div>
+          <div class="result-pct">${r.percentage}%</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.3);text-align:right;">${r.score}/${r.total}</div>
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    document.getElementById('modalContent').innerHTML = '<p style="text-align:center;padding:20px;color:#f07b7b;">Xatolik</p>';
+  }
+}
+
+function closeModal() {
+  document.getElementById('resultsModal').className = 'modal';
+}
+
+function showLoader() { document.getElementById('loading').style.display = 'flex'; }
+function hideLoader() { document.getElementById('loading').style.display = 'none'; }
+
+tg.BackButton.onClick(() => tg.close());
+tg.BackButton.show();
+</script>
+</body>
+</html>
