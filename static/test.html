@@ -1,1 +1,300 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Milliy Sertifikat Test</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f1923; color: white; min-height: 100vh; overflow-x: hidden; }
 
+/* SCREENS */
+.screen { display: none; min-height: 100vh; flex-direction: column; }
+.screen.active { display: flex; }
+
+/* ENTER */
+#enterScreen { align-items: center; justify-content: center; padding: 24px; }
+.logo { text-align: center; margin-bottom: 36px; }
+.logo-icon { width: 80px; height: 80px; background: linear-gradient(135deg, #1a3a5c, #2a5a8c); border-radius: 24px; display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; font-size: 36px; }
+.logo h1 { font-size: 22px; font-weight: 700; }
+.logo p { font-size: 13px; color: rgba(255,255,255,0.45); margin-top: 5px; }
+.card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 24px; width: 100%; max-width: 380px; }
+.card label { font-size: 11px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 10px; }
+.code-input { width: 100%; background: rgba(255,255,255,0.07); border: 1.5px solid rgba(255,255,255,0.12); border-radius: 14px; padding: 16px; font-size: 24px; font-weight: 800; color: white; text-align: center; letter-spacing: 6px; text-transform: uppercase; outline: none; }
+.code-input:focus { border-color: #7eb8f7; background: rgba(126,184,247,0.07); }
+.code-input::placeholder { font-size: 14px; letter-spacing: 1px; font-weight: 400; color: rgba(255,255,255,0.25); }
+.btn { width: 100%; border: none; border-radius: 14px; padding: 16px; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 14px; transition: opacity 0.2s, transform 0.1s; }
+.btn:active { transform: scale(0.98); opacity: 0.85; }
+.btn-blue { background: #7eb8f7; color: #0d2137; }
+.btn-green { background: #5dca95; color: #04342c; }
+.btn:disabled { opacity: 0.45; pointer-events: none; }
+.err { color: #f07b7b; font-size: 13px; text-align: center; margin-top: 10px; display: none; }
+
+/* TEST HEADER */
+.test-header { background: linear-gradient(135deg, #1a3a5c 0%, #0d2137 100%); padding: 14px 18px 18px; flex-shrink: 0; }
+.th-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.th-subject { font-size: 11px; color: #7eb8f7; font-weight: 700; letter-spacing: 1px; }
+.th-code { background: rgba(126,184,247,0.12); color: #7eb8f7; font-size: 12px; font-weight: 700; padding: 4px 12px; border-radius: 20px; }
+.th-info { display: flex; justify-content: space-between; margin-bottom: 8px; }
+.th-q { font-size: 18px; font-weight: 700; }
+.th-answered { font-size: 12px; color: rgba(255,255,255,0.4); align-self: flex-end; }
+.prog-bar { background: rgba(255,255,255,0.08); border-radius: 4px; height: 4px; }
+.prog-fill { background: #7eb8f7; height: 100%; border-radius: 4px; transition: width 0.3s; }
+
+/* TEST BODY */
+.test-body { flex: 1; overflow-y: auto; padding: 16px; }
+.overview { display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; margin-bottom: 14px; }
+.dot { height: 30px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; cursor: pointer; background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.35); border: 1px solid rgba(255,255,255,0.07); transition: all 0.15s; }
+.dot.answered { background: rgba(126,184,247,0.12); color: #7eb8f7; border-color: rgba(126,184,247,0.25); }
+.dot.current { border-color: #7eb8f7; color: #7eb8f7; }
+.q-label { font-size: 11px; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+.options { display: flex; flex-direction: column; gap: 10px; }
+.opt { background: rgba(255,255,255,0.04); border: 1.5px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: all 0.15s; }
+.opt:active { transform: scale(0.98); }
+.opt.sel { background: rgba(126,184,247,0.1); border-color: #7eb8f7; }
+.opt-l { width: 32px; height: 32px; border-radius: 10px; background: rgba(126,184,247,0.1); color: #7eb8f7; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; flex-shrink: 0; transition: all 0.15s; }
+.opt.sel .opt-l { background: #7eb8f7; color: #0d2137; }
+.opt-t { font-size: 15px; color: rgba(255,255,255,0.8); font-weight: 500; }
+
+/* TEST FOOTER */
+.test-footer { padding: 14px 16px; background: #0f1923; border-top: 1px solid rgba(255,255,255,0.06); flex-shrink: 0; }
+.nav { display: flex; gap: 10px; }
+.btn-prev { flex: 1; background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 14px; font-size: 15px; font-weight: 600; cursor: pointer; }
+.btn-next { flex: 2; background: #7eb8f7; color: #0d2137; border: none; border-radius: 14px; padding: 14px; font-size: 15px; font-weight: 700; cursor: pointer; }
+.btn-submit { flex: 2; background: #5dca95; color: #04342c; border: none; border-radius: 14px; padding: 14px; font-size: 15px; font-weight: 700; cursor: pointer; }
+
+/* RESULT */
+#resultScreen { align-items: center; padding: 24px; overflow-y: auto; }
+.res-circle { width: 110px; height: 110px; border-radius: 50%; border: 4px solid #7eb8f7; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 28px auto 16px; background: rgba(126,184,247,0.08); }
+.res-pct { font-size: 26px; font-weight: 800; color: #7eb8f7; }
+.res-grade-sm { font-size: 10px; color: rgba(255,255,255,0.4); text-transform: uppercase; }
+.res-title { font-size: 24px; font-weight: 700; text-align: center; margin-bottom: 4px; }
+.res-sub { font-size: 14px; color: rgba(255,255,255,0.45); text-align: center; margin-bottom: 24px; }
+.res-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; max-width: 340px; margin-bottom: 16px; }
+.res-card { background: rgba(255,255,255,0.05); border-radius: 14px; padding: 14px; text-align: center; }
+.res-num { font-size: 26px; font-weight: 800; margin-bottom: 3px; }
+.res-lbl { font-size: 11px; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 0.5px; }
+.c-green { color: #5dca95; } .c-red { color: #f07b7b; } .c-blue { color: #7eb8f7; } .c-yellow { color: #f7c75a; }
+.cert-box { background: rgba(126,184,247,0.07); border: 1px solid rgba(126,184,247,0.18); border-radius: 14px; padding: 14px 16px; width: 100%; max-width: 340px; font-size: 13px; color: rgba(255,255,255,0.55); }
+
+/* LOADING */
+#loader { position: fixed; inset: 0; background: #0f1923; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 999; }
+.spin { width: 42px; height: 42px; border: 3px solid rgba(126,184,247,0.15); border-top-color: #7eb8f7; border-radius: 50%; animation: sp 0.8s linear infinite; margin-bottom: 14px; }
+@keyframes sp { to { transform: rotate(360deg); } }
+#loader p { color: rgba(255,255,255,0.4); font-size: 14px; }
+</style>
+</head>
+<body>
+
+<div id="loader"><div class="spin"></div><p>Yuklanmoqda...</p></div>
+
+<div class="screen" id="enterScreen">
+  <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px;">
+    <div class="logo">
+      <div class="logo-icon">📐</div>
+      <h1>Milliy Sertifikat</h1>
+      <p>Test platformasi</p>
+    </div>
+    <div class="card">
+      <label>Test kodini kiriting</label>
+      <input type="text" class="code-input" id="codeInput" placeholder="ABC123" maxlength="8" autocomplete="off">
+      <p class="err" id="errMsg">Test topilmadi. Kodni tekshiring.</p>
+      <button class="btn btn-blue" id="startBtn" onclick="startTest()">Testni boshlash →</button>
+    </div>
+  </div>
+</div>
+
+<div class="screen" id="testScreen">
+  <div class="test-header">
+    <div class="th-top">
+      <span class="th-subject" id="thSubject">MATEMATIKA</span>
+      <span class="th-code" id="thCode">KOD</span>
+    </div>
+    <div class="th-info">
+      <span class="th-q" id="thQ">Savol 1/30</span>
+      <span class="th-answered" id="thAns">0 javob</span>
+    </div>
+    <div class="prog-bar"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+  </div>
+  <div class="test-body">
+    <div class="overview" id="overview"></div>
+    <div class="q-label" id="qLabel">1-SAVOL</div>
+    <div class="options" id="options"></div>
+  </div>
+  <div class="test-footer">
+    <div class="nav">
+      <button class="btn-prev" id="prevBtn" onclick="prevQ()">← Oldingi</button>
+      <button class="btn-next" id="nextBtn" onclick="nextQ()">Keyingi →</button>
+    </div>
+  </div>
+</div>
+
+<div class="screen" id="resultScreen">
+  <div class="res-circle" id="resCircle">
+    <span class="res-pct" id="resPct">0%</span>
+    <span class="res-grade-sm" id="resGradeSm">-</span>
+  </div>
+  <h2 class="res-title" id="resTitle">NATIJA</h2>
+  <p class="res-sub" id="resSub">-</p>
+  <div class="res-grid">
+    <div class="res-card"><div class="res-num c-green" id="rCorrect">0</div><div class="res-lbl">To'g'ri</div></div>
+    <div class="res-card"><div class="res-num c-red" id="rWrong">0</div><div class="res-lbl">Noto'g'ri</div></div>
+    <div class="res-card"><div class="res-num c-blue" id="rTotal">0</div><div class="res-lbl">Jami</div></div>
+    <div class="res-card"><div class="res-num c-yellow" id="rRank">-</div><div class="res-lbl">O'rin</div></div>
+  </div>
+  <div class="cert-box">📜 Test yakunlangach sertifikat botda yuboriladi</div>
+</div>
+
+<script>
+const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+if (tg) { tg.ready(); tg.expand(); }
+
+const BASE_URL = 'https://promath.onrender.com';
+let testData = null, curQ = 0, answers = {};
+let userId = tg?.initDataUnsafe?.user?.id || 0;
+let userName = tg?.initDataUnsafe?.user?.first_name || "Mehmon";
+
+// Hide loader and show enter screen
+window.addEventListener('load', () => {
+  document.getElementById('loader').style.display = 'none';
+  showScreen('enterScreen');
+});
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+async function startTest() {
+  const code = document.getElementById('codeInput').value.trim().toUpperCase();
+  if (!code) return;
+  const btn = document.getElementById('startBtn');
+  btn.disabled = true;
+  btn.textContent = 'Tekshirilmoqda...';
+  document.getElementById('errMsg').style.display = 'none';
+  try {
+    const res = await fetch(`${BASE_URL}/api/test/${code}`);
+    if (!res.ok) throw new Error();
+    testData = await res.json();
+    loadTest();
+  } catch {
+    document.getElementById('errMsg').style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Testni boshlash →';
+  }
+}
+
+function loadTest() {
+  document.getElementById('thSubject').textContent = testData.subject.toUpperCase();
+  document.getElementById('thCode').textContent = testData.test_code;
+  showQ(0);
+  showScreen('testScreen');
+  if (tg) tg.BackButton.show();
+}
+
+function buildOverview() {
+  const c = document.getElementById('overview');
+  c.innerHTML = '';
+  for (let i = 0; i < testData.total_questions; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot' + (answers[i+1] ? ' answered' : '') + (i === curQ ? ' current' : '');
+    d.textContent = i + 1;
+    d.onclick = () => showQ(i);
+    c.appendChild(d);
+  }
+}
+
+function showQ(idx) {
+  curQ = idx;
+  const total = testData.total_questions;
+  const answeredCount = Object.keys(answers).length;
+  document.getElementById('thQ').textContent = `Savol ${idx+1}/${total}`;
+  document.getElementById('thAns').textContent = `${answeredCount} javob`;
+  document.getElementById('progFill').style.width = `${((idx+1)/total)*100}%`;
+  document.getElementById('qLabel').textContent = `${idx+1}-SAVOL`;
+
+  const opts = document.getElementById('options');
+  opts.innerHTML = '';
+  ['A','B','C','D'].forEach(l => {
+    const d = document.createElement('div');
+    d.className = 'opt' + (answers[idx+1] === l ? ' sel' : '');
+    d.innerHTML = `<div class="opt-l">${l}</div><div class="opt-t">${l} variant</div>`;
+    d.onclick = () => { answers[idx+1] = l; showQ(idx); };
+    opts.appendChild(d);
+  });
+
+  document.getElementById('prevBtn').style.display = idx === 0 ? 'none' : 'flex';
+  const nb = document.getElementById('nextBtn');
+  if (idx === total - 1) {
+    nb.className = 'btn-submit'; nb.textContent = '✅ Yakunlash';
+  } else {
+    nb.className = 'btn-next'; nb.textContent = 'Keyingi →';
+  }
+  buildOverview();
+}
+
+function prevQ() { if (curQ > 0) showQ(curQ - 1); }
+function nextQ() {
+  if (curQ < testData.total_questions - 1) showQ(curQ + 1);
+  else submitTest();
+}
+
+async function submitTest() {
+  const total = testData.total_questions;
+  const unanswered = total - Object.keys(answers).length;
+  if (unanswered > 0 && !confirm(`${unanswered} ta savolga javob bermagansiz. Baribir yuborasizmi?`)) return;
+
+  document.getElementById('loader').style.display = 'flex';
+  const payload = {};
+  for (let i = 1; i <= total; i++) payload[String(i)] = answers[i] || '?';
+
+  try {
+    const res = await fetch(`${BASE_URL}/api/submit`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ test_code: testData.test_code, user_id: userId, user_name: userName, answers: payload })
+    });
+    const data = await res.json();
+    document.getElementById('loader').style.display = 'none';
+    showResult(data);
+  } catch {
+    document.getElementById('loader').style.display = 'none';
+    alert("Xatolik yuz berdi. Qaytadan urinib ko'ring.");
+  }
+}
+
+function showResult(r) {
+  const pct = r.percentage || 0;
+  let grade, sub, color;
+  if (pct >= 85) { grade = "A'LO"; sub = "Ajoyib natija! 🥇"; color = "#7eb8f7"; }
+  else if (pct >= 70) { grade = "YAXSHI"; sub = "Yaxshi natija! 🥈"; color = "#5dca95"; }
+  else if (pct >= 55) { grade = "QONIQARLI"; sub = "Yaxshi harakat! 🥉"; color = "#f7c75a"; }
+  else { grade = "QATNASHDI"; sub = "Keyingi safar ko'proq o'qing 📚"; color = "#f07b7b"; }
+
+  document.getElementById('resPct').textContent = `${pct}%`;
+  document.getElementById('resPct').style.color = color;
+  document.getElementById('resGradeSm').textContent = grade;
+  document.getElementById('resTitle').textContent = grade;
+  document.getElementById('resSub').textContent = sub;
+  document.getElementById('resCircle').style.borderColor = color;
+  document.getElementById('rCorrect').textContent = r.score;
+  document.getElementById('rWrong').textContent = r.total - r.score;
+  document.getElementById('rTotal').textContent = r.total;
+  if (r.already_submitted) document.querySelector('.cert-box').textContent = '✅ Siz bu testni allaqachon topshirgansiz';
+  showScreen('resultScreen');
+  if (tg) { tg.MainButton.setText('Yopish'); tg.MainButton.show(); tg.MainButton.onClick(() => tg.close()); }
+}
+
+document.getElementById('codeInput').addEventListener('keypress', e => { if (e.key === 'Enter') startTest(); });
+if (tg) {
+  tg.BackButton.onClick(() => {
+    if (document.getElementById('testScreen').classList.contains('active')) {
+      if (confirm("Testdan chiqasizmi?")) { showScreen('enterScreen'); tg.BackButton.hide(); }
+    } else tg.close();
+  });
+}
+</script>
+</body>
+</html>
