@@ -4,7 +4,7 @@ import logging
 import threading
 import json
 from flask import Flask, request, jsonify, send_from_directory
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo, MenuButtonWebApp
 from telegram.ext import (
     Application, CommandHandler, CallbackQueryHandler,
     MessageHandler, ConversationHandler, filters
@@ -25,7 +25,8 @@ CHANNEL_ID = os.getenv("CHANNEL_ID")
 CHANNEL_USERNAME = os.getenv("CHANNEL_USERNAME", "")
 RENDER_URL = os.getenv("RENDER_EXTERNAL_URL", "")
 
-app = Flask(__name__, static_folder="static")
+import os as _os
+app = Flask(__name__, static_folder=_os.path.join(_os.path.dirname(__file__), "static"))
 ptb_app = None
 loop = None
 
@@ -33,11 +34,15 @@ loop = None
 
 @app.route("/")
 def index():
-    return send_from_directory("static", "test.html")
+    return send_from_directory(
+        _os.path.join(_os.path.dirname(__file__), "static"), "test.html"
+    )
 
 @app.route("/admin-app")
 def admin_app():
-    return send_from_directory("static", "admin.html")
+    return send_from_directory(
+        _os.path.join(_os.path.dirname(__file__), "static"), "admin.html"
+    )
 
 @app.route(f"/{BOT_TOKEN}", methods=["POST"])
 def webhook():
@@ -233,9 +238,13 @@ async def check_subscription(bot, user_id):
     if not CHANNEL_ID:
         return True
     try:
-        member = await bot.get_chat_member(chat_id=CHANNEL_ID, user_id=user_id)
+        channel = CHANNEL_ID.strip()
+        if channel.lstrip('-').isdigit():
+            channel = int(channel)
+        member = await bot.get_chat_member(chat_id=channel, user_id=user_id)
         return member.status in [ChatMember.MEMBER, ChatMember.ADMINISTRATOR, ChatMember.OWNER]
-    except:
+    except Exception as e:
+        logger.warning(f"Obuna tekshirishda xato: {e}")
         return True
 
 async def start(update: Update, context):
@@ -351,6 +360,15 @@ async def run_bot():
         webhook_url = f"{RENDER_URL}/{BOT_TOKEN}"
         await ptb_app.bot.set_webhook(url=webhook_url, allowed_updates=["message", "callback_query"])
         logger.info(f"✅ Webhook: {webhook_url}")
+
+        # 4 nuqta tugmasini o'rnatish
+        await ptb_app.bot.set_chat_menu_button(
+            menu_button=MenuButtonWebApp(
+                text="📝 Testga kirish",
+                web_app=WebAppInfo(url=f"{RENDER_URL}/")
+            )
+        )
+        logger.info("✅ Menu button o'rnatildi!")
 
     flask_thread = threading.Thread(target=run_flask, daemon=True)
     flask_thread.start()
