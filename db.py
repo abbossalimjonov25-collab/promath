@@ -136,3 +136,16 @@ async def get_submission(test_code, user_id):
             "SELECT * FROM submissions WHERE test_code=$1 AND user_id=$2",
             test_code, user_id
         )
+
+async def get_user(user_id):
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        return await conn.fetchrow("SELECT * FROM users WHERE user_id=$1", user_id)
+
+async def update_user_name(user_id, full_name):
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        await conn.execute(
+            "UPDATE users SET full_name=$2 WHERE user_id=$1",
+            user_id, full_name
+        )
