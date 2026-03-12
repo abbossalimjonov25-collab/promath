@@ -287,10 +287,7 @@ async def profile_callback(update: Update, context):
     await query.answer()
     user = query.from_user
 
-    async def _get():
-        return await get_user(user.id)
-    future = asyncio.run_coroutine_threadsafe(_get(), loop)
-    db_user = future.result(timeout=10)
+    db_user = await get_user(user.id)
 
     name = db_user['full_name'] if db_user else user.full_name
     username = f"@{user.username}" if user.username else "Yo'q"
@@ -334,23 +331,14 @@ async def receive_new_name(update: Update, context):
     await update.message.delete()
 
     if len(new_name) < 2:
-        await context.bot.send_message(
-            chat_id=user.id,
-            text="❌ Ism juda qisqa! Kamida 2 ta harf kiriting."
-        )
+        await context.bot.send_message(chat_id=user.id, text="❌ Ism juda qisqa! Kamida 2 ta harf kiriting.")
         return WAIT_NAME
 
     if len(new_name) > 50:
-        await context.bot.send_message(
-            chat_id=user.id,
-            text="❌ Ism juda uzun! 50 ta belgidan oshmasin."
-        )
+        await context.bot.send_message(chat_id=user.id, text="❌ Ism juda uzun! 50 ta belgidan oshmasin.")
         return WAIT_NAME
 
-    async def _update():
-        await update_user_name(user.id, new_name)
-    asyncio.run_coroutine_threadsafe(_update(), loop).result(timeout=10)
-
+    await update_user_name(user.id, new_name)
     context.user_data['editing_name'] = False
 
     keyboard = [
@@ -371,10 +359,7 @@ async def cancel_edit_callback(update: Update, context):
     context.user_data['editing_name'] = False
     user = query.from_user
 
-    async def _get():
-        return await get_user(user.id)
-    future = asyncio.run_coroutine_threadsafe(_get(), loop)
-    db_user = future.result(timeout=10)
+    db_user = await get_user(user.id)
     name = db_user['full_name'] if db_user else user.full_name
     username = f"@{user.username}" if user.username else "Yo'q"
 
