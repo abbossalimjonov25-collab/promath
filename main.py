@@ -114,7 +114,37 @@ def api_update_name():
     asyncio.run_coroutine_threadsafe(_update(), loop).result(timeout=10)
     return jsonify({"success": True, "full_name": new_name})
 
-@app.route("/api/admin/create-test", methods=["POST"])
+@app.route("/api/submit-create", methods=["POST"])
+def api_user_create_test():
+    """Foydalanuvchi o'zi test yaratadi"""
+    data = request.get_json()
+    user_id = int(data.get("user_id", 0))
+    user_name = data.get("user_name", "Foydalanuvchi")
+    answers_input = data.get("answers", "")
+    subject = data.get("subject", "Matematika")
+
+    parsed = parse_answers(answers_input)
+    if not parsed:
+        letters = answers_input.upper().replace(" ", "")
+        if all(c.isalpha() for c in letters) and len(letters) > 0:
+            parsed = {i+1: l for i, l in enumerate(letters)}
+        else:
+            return jsonify({"error": "Kalitlar formati noto'g'ri"}), 400
+
+    if len(parsed) < 1:
+        return jsonify({"error": "Kamida 1 ta savol bo'lishi kerak"}), 400
+
+    test_code = generate_test_code()
+    answers_str = answers_dict_to_string(parsed)
+
+    async def _create():
+        await register_user(user_id, user_name, None)
+        await create_test(test_code, answers_str, len(parsed), user_id, subject)
+
+    asyncio.run_coroutine_threadsafe(_create(), loop).result(timeout=10)
+    return jsonify({"test_code": test_code, "total_questions": len(parsed), "subject": subject})
+
+
 def api_create_test():
     data = request.get_json()
     admin_id = int(data.get("admin_id", 0))
