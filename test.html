@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Matematika Testi</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f1923; color: white; min-height: 100vh; }
+
+.screen { display: none; min-height: 100vh; flex-direction: column; }
+.screen.active { display: flex; }
+
+/* ENTER SCREEN */
+.enter-screen { align-items: center; justify-content: center; padding: 24px; }
+.logo { text-align: center; margin-bottom: 40px; }
+.logo-icon { width: 80px; height: 80px; background: linear-gradient(135deg, #1a3a5c, #2a5a8c); border-radius: 24px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 36px; }
+.logo h1 { font-size: 22px; font-weight: 700; color: white; }
+.logo p { font-size: 14px; color: rgba(255,255,255,0.5); margin-top: 6px; }
+.enter-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 24px; width: 100%; max-width: 380px; }
+.enter-card label { font-size: 12px; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 10px; }
+.code-input { width: 100%; background: rgba(255,255,255,0.08); border: 1.5px solid rgba(255,255,255,0.15); border-radius: 14px; padding: 16px 18px; font-size: 22px; font-weight: 700; color: white; text-align: center; letter-spacing: 4px; text-transform: uppercase; outline: none; transition: border-color 0.2s; }
+.code-input:focus { border-color: #7eb8f7; }
+.code-input::placeholder { font-size: 15px; letter-spacing: 1px; color: rgba(255,255,255,0.3); font-weight: 400; }
+.btn-primary { width: 100%; background: #7eb8f7; color: #0d2137; border: none; border-radius: 14px; padding: 16px; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 16px; transition: opacity 0.2s, transform 0.1s; }
+.btn-primary:active { transform: scale(0.98); opacity: 0.9; }
+.btn-primary:disabled { opacity: 0.5; }
+.error-msg { color: #f07b7b; font-size: 13px; text-align: center; margin-top: 12px; display: none; }
+
+/* TEST SCREEN */
+.test-header { background: linear-gradient(135deg, #1a3a5c 0%, #0d2137 100%); padding: 16px 20px 20px; flex-shrink: 0; }
+.test-header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.test-subject { font-size: 12px; color: #7eb8f7; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+.test-timer { background: rgba(126,184,247,0.15); color: #7eb8f7; font-size: 13px; font-weight: 600; padding: 4px 12px; border-radius: 20px; }
+.test-progress-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.test-progress-text { font-size: 20px; font-weight: 700; }
+.test-progress-count { font-size: 13px; color: rgba(255,255,255,0.5); }
+.progress-bar { background: rgba(255,255,255,0.1); border-radius: 4px; height: 4px; }
+.progress-fill { background: #7eb8f7; height: 100%; border-radius: 4px; transition: width 0.3s; }
+
+.test-body { flex: 1; overflow-y: auto; padding: 20px; }
+.question-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 18px; margin-bottom: 16px; }
+.question-num { font-size: 11px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+.question-text { font-size: 16px; font-weight: 500; line-height: 1.6; color: white; }
+
+.options { display: flex; flex-direction: column; gap: 10px; }
+.option { background: rgba(255,255,255,0.04); border: 1.5px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 14px 16px; display: flex; align-items: center; gap: 14px; cursor: pointer; transition: all 0.15s; -webkit-tap-highlight-color: transparent; }
+.option:active { transform: scale(0.98); }
+.option.selected { background: rgba(126,184,247,0.12); border-color: #7eb8f7; }
+.option-letter { width: 32px; height: 32px; border-radius: 10px; background: rgba(126,184,247,0.1); color: #7eb8f7; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; flex-shrink: 0; transition: all 0.15s; }
+.option.selected .option-letter { background: #7eb8f7; color: #0d2137; }
+.option-text { font-size: 15px; color: rgba(255,255,255,0.85); font-weight: 500; }
+
+.test-footer { padding: 16px 20px; background: #0f1923; border-top: 1px solid rgba(255,255,255,0.06); flex-shrink: 0; }
+.nav-buttons { display: flex; gap: 10px; }
+.btn-prev { flex: 1; background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.7); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 14px; font-size: 15px; font-weight: 600; cursor: pointer; transition: opacity 0.2s; }
+.btn-next { flex: 2; background: #7eb8f7; color: #0d2137; border: none; border-radius: 14px; padding: 14px; font-size: 15px; font-weight: 700; cursor: pointer; transition: opacity 0.2s, transform 0.1s; }
+.btn-next:active { transform: scale(0.98); }
+.btn-submit { flex: 2; background: #5dca95; color: #04342c; border: none; border-radius: 14px; padding: 14px; font-size: 15px; font-weight: 700; cursor: pointer; }
+
+.answers-overview { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin-bottom: 14px; }
+.answer-dot { height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; cursor: pointer; background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.4); border: 1px solid rgba(255,255,255,0.08); transition: all 0.15s; }
+.answer-dot.answered { background: rgba(126,184,247,0.15); color: #7eb8f7; border-color: rgba(126,184,247,0.3); }
+.answer-dot.current { border-color: #7eb8f7; background: rgba(126,184,247,0.2); }
+
+/* RESULT SCREEN */
+.result-screen { align-items: center; padding: 24px; overflow-y: auto; }
+.result-circle { width: 120px; height: 120px; border-radius: 50%; border: 4px solid #7eb8f7; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 32px auto 20px; background: rgba(126,184,247,0.1); }
+.result-pct { font-size: 28px; font-weight: 800; color: #7eb8f7; }
+.result-grade { font-size: 11px; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 1px; }
+.result-title { font-size: 26px; font-weight: 700; text-align: center; margin-bottom: 6px; }
+.result-sub { font-size: 14px; color: rgba(255,255,255,0.5); text-align: center; margin-bottom: 28px; }
+.result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; max-width: 380px; margin-bottom: 20px; }
+.result-card { background: rgba(255,255,255,0.05); border-radius: 14px; padding: 14px; text-align: center; }
+.result-card-num { font-size: 28px; font-weight: 800; margin-bottom: 4px; }
+.result-card-label { font-size: 11px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.5px; }
+.correct-num { color: #5dca95; }
+.wrong-num { color: #f07b7b; }
+.total-num { color: #7eb8f7; }
+.cert-info { background: rgba(126,184,247,0.08); border: 1px solid rgba(126,184,247,0.2); border-radius: 14px; padding: 14px 16px; width: 100%; max-width: 380px; margin-bottom: 16px; }
+.cert-info p { font-size: 13px; color: rgba(255,255,255,0.6); margin-bottom: 4px; }
+.cert-info span { font-size: 14px; color: #7eb8f7; font-weight: 500; }
+
+/* Loading */
+.loading { position: fixed; inset: 0; background: #0f1923; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; }
+.spinner { width: 44px; height: 44px; border: 3px solid rgba(126,184,247,0.2); border-top-color: #7eb8f7; border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 16px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading p { color: rgba(255,255,255,0.5); font-size: 14px; }
+</style>
+</head>
+<body>
+
+<div class="loading" id="loading">
+  <div class="spinner"></div>
+  <p>Yuklanmoqda...</p>
+</div>
+
+<!-- ENTER SCREEN -->
+<div class="screen active" id="enterScreen">
+  <div class="enter-screen">
+    <div class="logo">
+      <div class="logo-icon">📐</div>
+      <h1>Milliy Sertifikat</h1>
+      <p>Test platformasi</p>
+    </div>
+    <div class="enter-card">
+      <label>Test kodi</label>
+      <input type="text" class="code-input" id="testCodeInput" placeholder="ABC123" maxlength="8">
+      <p class="error-msg" id="errorMsg">Test topilmadi. Kodni tekshiring.</p>
+      <button class="btn-primary" id="startBtn" onclick="startTest()">Testni boshlash →</button>
+    </div>
+  </div>
+</div>
+
+<!-- TEST SCREEN -->
+<div class="screen" id="testScreen">
+  <div class="test-header">
+    <div class="test-header-top">
+      <span class="test-subject" id="testSubject">MATEMATIKA</span>
+      <span class="test-timer" id="testCode">ABC123</span>
+    </div>
+    <div class="test-progress-info">
+      <span class="test-progress-text" id="progressText">Savol 1 / 30</span>
+      <span class="test-progress-count" id="answeredCount">0 ta javob berildi</span>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+    </div>
+  </div>
+
+  <div class="test-body">
+    <div class="answers-overview" id="answersOverview"></div>
+    <div class="question-card">
+      <div class="question-num" id="questionNum">1-SAVOL</div>
+      <div class="question-text" id="questionText">Savol matni</div>
+    </div>
+    <div class="options" id="optionsContainer"></div>
+  </div>
+
+  <div class="test-footer">
+    <div class="nav-buttons">
+      <button class="btn-prev" id="prevBtn" onclick="prevQuestion()">← Oldingi</button>
+      <button class="btn-next" id="nextBtn" onclick="nextQuestion()">Keyingi →</button>
+    </div>
+  </div>
+</div>
+
+<!-- RESULT SCREEN -->
+<div class="screen" id="resultScreen">
+  <div class="result-screen">
+    <div class="result-circle" id="resultCircle">
+      <span class="result-pct" id="resultPct">0%</span>
+      <span class="result-grade" id="resultGradeSmall">baho</span>
+    </div>
+    <h2 class="result-title" id="resultGrade">A'LO</h2>
+    <p class="result-sub" id="resultSub">Ajoyib natija!</p>
+    <div class="result-grid">
+      <div class="result-card"><div class="result-card-num correct-num" id="scoreCorrect">0</div><div class="result-card-label">To'g'ri</div></div>
+      <div class="result-card"><div class="result-card-num wrong-num" id="scoreWrong">0</div><div class="result-card-label">Noto'g'ri</div></div>
+      <div class="result-card"><div class="result-card-num total-num" id="scoreTotal">0</div><div class="result-card-label">Jami savol</div></div>
+      <div class="result-card"><div class="result-card-num" style="color: #f7c75a;" id="scoreRank">-</div><div class="result-card-label">O'rin</div></div>
+    </div>
+    <div class="cert-info">
+      <p>Sertifikat holati</p>
+      <span>Test yakunlangach sertifikat yuboriladi 📜</span>
+    </div>
+  </div>
+</div>
+
+<script>
+const tg = window.Telegram.WebApp;
+tg.ready();
+tg.expand();
+
+const BASE_URL = window.location.origin;
+let testData = null;
+let currentQuestion = 0;
+let userAnswers = {};
+let userId = tg.initDataUnsafe?.user?.id || 0;
+let userName = tg.initDataUnsafe?.user?.first_name || "O'quvchi";
+
+document.getElementById('loading').style.display = 'none';
+
+const SUBJECTS = {
+  'Matematika': 'MATEMATIKA 📐',
+  'Fizika': 'FIZIKA ⚡',
+  'Kimyo': 'KIMYO 🧪',
+  'Biologiya': 'BIOLOGIYA 🌿',
+  'Ingliz tili': 'INGLIZ TILI 🌍',
+  'Ona tili': 'ONA TILI 📖'
+};
+
+async function startTest() {
+  const code = document.getElementById('testCodeInput').value.trim().toUpperCase();
+  if (!code) return;
+
+  const btn = document.getElementById('startBtn');
+  btn.disabled = true;
+  btn.textContent = 'Tekshirilmoqda...';
+  document.getElementById('errorMsg').style.display = 'none';
+
+  try {
+    const res = await fetch(`${BASE_URL}/api/test/${code}`);
+    if (!res.ok) throw new Error('not found');
+    testData = await res.json();
+    testData.test_code = code;
+    loadTestScreen();
+  } catch {
+    document.getElementById('errorMsg').style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Testni boshlash →';
+  }
+}
+
+function loadTestScreen() {
+  document.getElementById('testSubject').textContent = SUBJECTS[testData.subject] || testData.subject.toUpperCase();
+  document.getElementById('testCode').textContent = testData.test_code;
+  showQuestion(0);
+  buildOverview();
+  showScreen('testScreen');
+}
+
+function buildOverview() {
+  const container = document.getElementById('answersOverview');
+  container.innerHTML = '';
+  for (let i = 0; i < testData.total_questions; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'answer-dot' + (i === currentQuestion ? ' current' : '') + (userAnswers[i+1] ? ' answered' : '');
+    dot.textContent = i + 1;
+    dot.onclick = () => goToQuestion(i);
+    container.appendChild(dot);
+  }
+}
+
+function showQuestion(idx) {
+  currentQuestion = idx;
+  const q = testData.questions[idx];
+  const total = testData.total_questions;
+  const answered = Object.keys(userAnswers).length;
+
+  document.getElementById('progressText').textContent = `Savol ${idx+1} / ${total}`;
+  document.getElementById('answeredCount').textContent = `${answered} ta javob berildi`;
+  document.getElementById('progressFill').style.width = `${((idx+1)/total)*100}%`;
+  document.getElementById('questionNum').textContent = `${idx+1}-SAVOL`;
+  document.getElementById('questionText').textContent = `${idx+1}-savol uchun javobni tanlang`;
+
+  const options = document.getElementById('optionsContainer');
+  options.innerHTML = '';
+  ['A','B','C','D'].forEach(letter => {
+    const opt = document.createElement('div');
+    opt.className = 'option' + (userAnswers[idx+1] === letter ? ' selected' : '');
+    opt.innerHTML = `<div class="option-letter">${letter}</div><div class="option-text">${letter} variant</div>`;
+    opt.onclick = () => selectAnswer(idx+1, letter);
+    options.appendChild(opt);
+  });
+
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  prevBtn.style.display = idx === 0 ? 'none' : 'flex';
+  nextBtn.className = idx === total - 1 ? 'btn-submit' : 'btn-next';
+  nextBtn.textContent = idx === total - 1 ? '✅ Testni yakunlash' : 'Keyingi →';
+
+  buildOverview();
+}
+
+function selectAnswer(qNum, letter) {
+  userAnswers[qNum] = letter;
+  showQuestion(currentQuestion);
+}
+
+function goToQuestion(idx) {
+  showQuestion(idx);
+}
+
+function prevQuestion() {
+  if (currentQuestion > 0) showQuestion(currentQuestion - 1);
+}
+
+function nextQuestion() {
+  if (currentQuestion < testData.total_questions - 1) {
+    showQuestion(currentQuestion + 1);
+  } else {
+    submitTest();
+  }
+}
+
+async function submitTest() {
+  const answered = Object.keys(userAnswers).length;
+  const total = testData.total_questions;
+
+  if (answered < total) {
+    const unanswered = total - answered;
+    if (!confirm(`${unanswered} ta savolga javob bermagansiz. Baribir yuborasizmi?`)) return;
+  }
+
+  document.getElementById('loading').style.display = 'flex';
+  document.getElementById('loading').querySelector('p').textContent = 'Javoblar yuklanmoqda...';
+
+  const answers = {};
+  for (let i = 1; i <= total; i++) {
+    answers[String(i)] = userAnswers[i] || "?";
+  }
+
+  try {
+    const res = await fetch(`${BASE_URL}/api/submit`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        test_code: testData.test_code,
+        user_id: userId,
+        user_name: userName,
+        answers: answers
+      })
+    });
+    const result = await res.json();
+    document.getElementById('loading').style.display = 'none';
+    showResult(result);
+  } catch(e) {
+    document.getElementById('loading').style.display = 'none';
+    alert('Xatolik yuz berdi. Qaytadan urinib ko\'ring.');
+  }
+}
+
+function showResult(result) {
+  const pct = result.percentage || 0;
+  let grade, sub, color;
+
+  if (pct >= 85) { grade = "A'LO"; sub = "Ajoyib natija! 🥇"; color = "#7eb8f7"; }
+  else if (pct >= 70) { grade = "YAXSHI"; sub = "Yaxshi natija! 🥈"; color = "#5dca95"; }
+  else if (pct >= 55) { grade = "QONIQARLI"; sub = "Yaxshi harakat! 🥉"; color = "#f7c75a"; }
+  else { grade = "QATNASHDI"; sub = "Keyingi safar ko'proq tayyorlaning 📚"; color = "#f07b7b"; }
+
+  document.getElementById('resultPct').textContent = `${pct}%`;
+  document.getElementById('resultPct').style.color = color;
+  document.getElementById('resultGradeSmall').textContent = grade;
+  document.getElementById('resultGrade').textContent = grade;
+  document.getElementById('resultSub').textContent = sub;
+  document.getElementById('resultCircle').style.borderColor = color;
+
+  const wrong = result.total - result.score;
+  document.getElementById('scoreCorrect').textContent = result.score;
+  document.getElementById('scoreWrong').textContent = wrong;
+  document.getElementById('scoreTotal').textContent = result.total;
+
+  if (result.already_submitted) {
+    document.querySelector('.cert-info span').textContent = 'Siz allaqachon bu testni topshirgansiz ✅';
+  }
+
+  showScreen('resultScreen');
+  tg.MainButton.setText('Yakunlash');
+  tg.MainButton.show();
+  tg.MainButton.onClick(() => tg.close());
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+document.getElementById('testCodeInput').addEventListener('keypress', e => {
+  if (e.key === 'Enter') startTest();
+});
+
+tg.BackButton.onClick(() => {
+  if (document.getElementById('testScreen').classList.contains('active')) {
+    if (confirm("Testdan chiqasizmi? Javoblaringiz saqlanmaydi.")) {
+      showScreen('enterScreen');
+      tg.BackButton.hide();
+    }
+  } else {
+    tg.close();
+  }
+});
+</script>
+</body>
+</html>
