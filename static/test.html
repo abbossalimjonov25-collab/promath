@@ -3,296 +3,542 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Milliy Sertifikat Test</title>
+<title>Milliy Sertifikat</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-html, body { height: 100%; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f1923; color: white; min-height: 100vh; overflow-x: hidden; }
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow-x:hidden}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0f1923;color:#fff;min-height:100vh}
 
 /* SCREENS */
-.screen { display: none; min-height: 100vh; flex-direction: column; }
-.screen.active { display: flex; }
+.screen{display:none;min-height:100vh;flex-direction:column}
+.screen.active{display:flex}
 
-/* ENTER */
-#enterScreen { align-items: center; justify-content: center; padding: 24px; }
-.logo { text-align: center; margin-bottom: 36px; }
-.logo-icon { width: 80px; height: 80px; background: linear-gradient(135deg, #1a3a5c, #2a5a8c); border-radius: 24px; display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; font-size: 36px; }
-.logo h1 { font-size: 22px; font-weight: 700; }
-.logo p { font-size: 13px; color: rgba(255,255,255,0.45); margin-top: 5px; }
-.card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 24px; width: 100%; max-width: 380px; }
-.card label { font-size: 11px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 10px; }
-.code-input { width: 100%; background: rgba(255,255,255,0.07); border: 1.5px solid rgba(255,255,255,0.12); border-radius: 14px; padding: 16px; font-size: 24px; font-weight: 800; color: white; text-align: center; letter-spacing: 6px; text-transform: uppercase; outline: none; }
-.code-input:focus { border-color: #7eb8f7; background: rgba(126,184,247,0.07); }
-.code-input::placeholder { font-size: 14px; letter-spacing: 1px; font-weight: 400; color: rgba(255,255,255,0.25); }
-.btn { width: 100%; border: none; border-radius: 14px; padding: 16px; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 14px; transition: opacity 0.2s, transform 0.1s; }
-.btn:active { transform: scale(0.98); opacity: 0.85; }
-.btn-blue { background: #7eb8f7; color: #0d2137; }
-.btn-green { background: #5dca95; color: #04342c; }
-.btn:disabled { opacity: 0.45; pointer-events: none; }
-.err { color: #f07b7b; font-size: 13px; text-align: center; margin-top: 10px; display: none; }
+/* ===== HOME ===== */
+#homeScreen{align-items:center;justify-content:center;padding:24px;gap:16px}
+.home-logo{text-align:center;margin-bottom:8px}
+.home-icon{width:86px;height:86px;background:linear-gradient(135deg,#1a3a5c,#2a5a8c);border-radius:26px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:38px;box-shadow:0 8px 32px rgba(126,184,247,0.2)}
+.home-title{font-size:24px;font-weight:800;letter-spacing:-0.5px}
+.home-sub{font-size:13px;color:rgba(255,255,255,0.4);margin-top:5px}
+.home-cards{display:flex;flex-direction:column;gap:12px;width:100%;max-width:380px}
+.home-card{border-radius:18px;padding:20px;cursor:pointer;transition:transform 0.15s,opacity 0.15s;display:flex;align-items:center;gap:16px}
+.home-card:active{transform:scale(0.97);opacity:0.85}
+.hc-join{background:linear-gradient(135deg,#1a4a7a,#0d2a4a);border:1px solid rgba(126,184,247,0.2)}
+.hc-create{background:linear-gradient(135deg,#1a4a3a,#0d2a1e);border:1px solid rgba(93,202,149,0.2)}
+.hc-icon{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.hc-join .hc-icon{background:rgba(126,184,247,0.15)}
+.hc-create .hc-icon{background:rgba(93,202,149,0.15)}
+.hc-text h3{font-size:16px;font-weight:700;margin-bottom:3px}
+.hc-text p{font-size:12px;color:rgba(255,255,255,0.45);line-height:1.4}
 
-/* TEST HEADER */
-.test-header { background: linear-gradient(135deg, #1a3a5c 0%, #0d2137 100%); padding: 14px 18px 18px; flex-shrink: 0; }
-.th-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-.th-subject { font-size: 11px; color: #7eb8f7; font-weight: 700; letter-spacing: 1px; }
-.th-code { background: rgba(126,184,247,0.12); color: #7eb8f7; font-size: 12px; font-weight: 700; padding: 4px 12px; border-radius: 20px; }
-.th-info { display: flex; justify-content: space-between; margin-bottom: 8px; }
-.th-q { font-size: 18px; font-weight: 700; }
-.th-answered { font-size: 12px; color: rgba(255,255,255,0.4); align-self: flex-end; }
-.prog-bar { background: rgba(255,255,255,0.08); border-radius: 4px; height: 4px; }
-.prog-fill { background: #7eb8f7; height: 100%; border-radius: 4px; transition: width 0.3s; }
+/* ===== ENTER CODE ===== */
+#enterScreen{align-items:center;justify-content:center;padding:24px}
+.enter-wrap{width:100%;max-width:380px}
+.back-btn{display:flex;align-items:center;gap:8px;color:rgba(255,255,255,0.5);font-size:14px;cursor:pointer;margin-bottom:24px;width:fit-content}
+.back-btn:active{opacity:0.7}
+.section-title{font-size:22px;font-weight:800;margin-bottom:6px}
+.section-sub{font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:28px}
+.inp-label{font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:8px}
+.code-inp{width:100%;background:rgba(255,255,255,0.06);border:1.5px solid rgba(255,255,255,0.1);border-radius:14px;padding:16px;font-size:26px;font-weight:800;color:#fff;text-align:center;letter-spacing:6px;text-transform:uppercase;outline:none;transition:border-color 0.2s}
+.code-inp:focus{border-color:#7eb8f7;background:rgba(126,184,247,0.06)}
+.code-inp::placeholder{font-size:14px;letter-spacing:1px;font-weight:400;color:rgba(255,255,255,0.2)}
+.err-msg{color:#f07b7b;font-size:13px;margin-top:10px;display:none;text-align:center}
+.btn{width:100%;border:none;border-radius:14px;padding:16px;font-size:16px;font-weight:700;cursor:pointer;margin-top:14px;transition:opacity 0.2s,transform 0.1s}
+.btn:active{transform:scale(0.98);opacity:0.85}
+.btn:disabled{opacity:0.4;pointer-events:none}
+.btn-blue{background:#7eb8f7;color:#0d2137}
+.btn-green{background:#5dca95;color:#04342c}
 
-/* TEST BODY */
-.test-body { flex: 1; overflow-y: auto; padding: 16px; }
-.overview { display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; margin-bottom: 14px; }
-.dot { height: 30px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; cursor: pointer; background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.35); border: 1px solid rgba(255,255,255,0.07); transition: all 0.15s; }
-.dot.answered { background: rgba(126,184,247,0.12); color: #7eb8f7; border-color: rgba(126,184,247,0.25); }
-.dot.current { border-color: #7eb8f7; color: #7eb8f7; }
-.q-label { font-size: 11px; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
-.options { display: flex; flex-direction: column; gap: 10px; }
-.opt { background: rgba(255,255,255,0.04); border: 1.5px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: all 0.15s; }
-.opt:active { transform: scale(0.98); }
-.opt.sel { background: rgba(126,184,247,0.1); border-color: #7eb8f7; }
-.opt-l { width: 32px; height: 32px; border-radius: 10px; background: rgba(126,184,247,0.1); color: #7eb8f7; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; flex-shrink: 0; transition: all 0.15s; }
-.opt.sel .opt-l { background: #7eb8f7; color: #0d2137; }
-.opt-t { font-size: 15px; color: rgba(255,255,255,0.8); font-weight: 500; }
+/* ===== CREATE TEST ===== */
+#createScreen{padding:0}
+.create-header{background:linear-gradient(135deg,#1a4a3a,#0d2137);padding:16px 20px 20px;flex-shrink:0}
+.ch-top{display:flex;align-items:center;gap:12px;margin-bottom:4px}
+.ch-back{width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;flex-shrink:0}
+.ch-back:active{opacity:0.7}
+.ch-title{font-size:18px;font-weight:800}
+.ch-sub{font-size:12px;color:rgba(255,255,255,0.4);margin-left:44px}
+.create-body{flex:1;overflow-y:auto;padding:20px}
+.form-group{margin-bottom:18px}
+.form-label{font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:8px}
+.form-select{width:100%;background:rgba(255,255,255,0.06);border:1.5px solid rgba(255,255,255,0.1);border-radius:12px;padding:13px 16px;font-size:15px;color:#fff;outline:none;appearance:none}
+.form-select:focus{border-color:#5dca95}
+.num-input{width:100%;background:rgba(255,255,255,0.06);border:1.5px solid rgba(255,255,255,0.1);border-radius:12px;padding:13px 16px;font-size:20px;font-weight:700;color:#fff;text-align:center;outline:none}
+.num-input:focus{border-color:#5dca95}
+.create-footer{padding:16px 20px;flex-shrink:0;border-top:1px solid rgba(255,255,255,0.06)}
 
-/* TEST FOOTER */
-.test-footer { padding: 14px 16px; background: #0f1923; border-top: 1px solid rgba(255,255,255,0.06); flex-shrink: 0; }
-.nav { display: flex; gap: 10px; }
-.btn-prev { flex: 1; background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 14px; font-size: 15px; font-weight: 600; cursor: pointer; }
-.btn-next { flex: 2; background: #7eb8f7; color: #0d2137; border: none; border-radius: 14px; padding: 14px; font-size: 15px; font-weight: 700; cursor: pointer; }
-.btn-submit { flex: 2; background: #5dca95; color: #04342c; border: none; border-radius: 14px; padding: 14px; font-size: 15px; font-weight: 700; cursor: pointer; }
+/* ===== TEST (answering) ===== */
+#testScreen{display:none;flex-direction:column;min-height:100vh}
+#testScreen.active{display:flex}
+.test-header{background:linear-gradient(135deg,#1a3a5c,#0d2137);padding:14px 18px 16px;flex-shrink:0}
+.th-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.th-subject{font-size:11px;color:#7eb8f7;font-weight:700;letter-spacing:1px}
+.th-badge{background:rgba(126,184,247,0.12);color:#7eb8f7;font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px}
+.th-progress{display:flex;align-items:center;gap:10px}
+.th-num{font-size:20px;font-weight:800;flex:1}
+.th-count{font-size:12px;color:rgba(255,255,255,0.35)}
+.prog-bar{background:rgba(255,255,255,0.08);border-radius:4px;height:5px;margin-top:8px}
+.prog-fill{background:linear-gradient(90deg,#7eb8f7,#5dca95);height:100%;border-radius:4px;transition:width 0.4s cubic-bezier(.4,0,.2,1)}
 
-/* RESULT */
-#resultScreen { align-items: center; padding: 24px; overflow-y: auto; }
-.res-circle { width: 110px; height: 110px; border-radius: 50%; border: 4px solid #7eb8f7; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 28px auto 16px; background: rgba(126,184,247,0.08); }
-.res-pct { font-size: 26px; font-weight: 800; color: #7eb8f7; }
-.res-grade-sm { font-size: 10px; color: rgba(255,255,255,0.4); text-transform: uppercase; }
-.res-title { font-size: 24px; font-weight: 700; text-align: center; margin-bottom: 4px; }
-.res-sub { font-size: 14px; color: rgba(255,255,255,0.45); text-align: center; margin-bottom: 24px; }
-.res-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; max-width: 340px; margin-bottom: 16px; }
-.res-card { background: rgba(255,255,255,0.05); border-radius: 14px; padding: 14px; text-align: center; }
-.res-num { font-size: 26px; font-weight: 800; margin-bottom: 3px; }
-.res-lbl { font-size: 11px; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 0.5px; }
-.c-green { color: #5dca95; } .c-red { color: #f07b7b; } .c-blue { color: #7eb8f7; } .c-yellow { color: #f7c75a; }
-.cert-box { background: rgba(126,184,247,0.07); border: 1px solid rgba(126,184,247,0.18); border-radius: 14px; padding: 14px 16px; width: 100%; max-width: 340px; font-size: 13px; color: rgba(255,255,255,0.55); }
+/* Question slide */
+.test-body{flex:1;overflow:hidden;position:relative}
+.q-slide{position:absolute;inset:0;padding:24px 18px;display:flex;flex-direction:column;justify-content:center;transition:transform 0.35s cubic-bezier(.4,0,.2,1),opacity 0.35s;overflow-y:auto}
+.q-slide.entering-right{transform:translateX(100%);opacity:0}
+.q-slide.entering-left{transform:translateX(-100%);opacity:0}
+.q-slide.visible{transform:translateX(0);opacity:1}
+.q-slide.leaving-right{transform:translateX(100%);opacity:0}
+.q-slide.leaving-left{transform:translateX(-100%);opacity:0}
 
-/* LOADING */
-#loader { position: fixed; inset: 0; background: #0f1923; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 999; }
-.spin { width: 42px; height: 42px; border: 3px solid rgba(126,184,247,0.15); border-top-color: #7eb8f7; border-radius: 50%; animation: sp 0.8s linear infinite; margin-bottom: 14px; }
-@keyframes sp { to { transform: rotate(360deg); } }
-#loader p { color: rgba(255,255,255,0.4); font-size: 14px; }
+.q-num-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(126,184,247,0.1);border:1px solid rgba(126,184,247,0.2);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:600;color:#7eb8f7;margin-bottom:20px;width:fit-content}
+.q-text{font-size:17px;font-weight:600;line-height:1.6;color:rgba(255,255,255,0.9);margin-bottom:28px}
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.07);border-radius:16px;padding:15px 16px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:all 0.18s;user-select:none}
+.opt:active{transform:scale(0.97)}
+.opt.sel{background:rgba(126,184,247,0.12);border-color:#7eb8f7;transform:scale(1.01)}
+.opt-letter{width:36px;height:36px;border-radius:11px;background:rgba(126,184,247,0.1);color:#7eb8f7;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;flex-shrink:0;transition:all 0.18s}
+.opt.sel .opt-letter{background:#7eb8f7;color:#0d2137}
+.opt-text{font-size:15px;color:rgba(255,255,255,0.8);font-weight:500}
+
+.test-footer{padding:14px 18px;background:#0f1923;border-top:1px solid rgba(255,255,255,0.06);flex-shrink:0}
+.nav-row{display:flex;gap:10px}
+.nav-prev{flex:1;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.6);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:14px;font-size:15px;font-weight:600;cursor:pointer;transition:opacity 0.2s}
+.nav-next{flex:2;background:#7eb8f7;color:#0d2137;border:none;border-radius:14px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;transition:opacity 0.2s,transform 0.1s}
+.nav-next:active{transform:scale(0.97)}
+.nav-submit{flex:2;background:#5dca95;color:#04342c;border:none;border-radius:14px;padding:14px;font-size:15px;font-weight:700;cursor:pointer}
+
+/* Progress dots */
+.dots-row{display:flex;gap:4px;flex-wrap:wrap;margin-top:10px}
+.pdot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.1);transition:all 0.2s;cursor:pointer;flex-shrink:0}
+.pdot.answered{background:#5dca95}
+.pdot.current{background:#7eb8f7;transform:scale(1.4)}
+
+/* ===== RESULT ===== */
+#resultScreen{align-items:center;padding:28px 20px;overflow-y:auto}
+.res-wrap{width:100%;max-width:380px;display:flex;flex-direction:column;align-items:center}
+.res-circle{width:120px;height:120px;border-radius:50%;border:4px solid #7eb8f7;display:flex;flex-direction:column;align-items:center;justify-content:center;margin:8px auto 20px;background:rgba(126,184,247,0.08);position:relative}
+.res-pct{font-size:28px;font-weight:800;color:#7eb8f7;line-height:1}
+.res-gsm{font-size:10px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-top:3px}
+.res-title{font-size:26px;font-weight:800;text-align:center;margin-bottom:5px}
+.res-sub{font-size:14px;color:rgba(255,255,255,0.45);text-align:center;margin-bottom:24px}
+.res-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;margin-bottom:16px}
+.rcard{background:rgba(255,255,255,0.05);border-radius:16px;padding:16px;text-align:center}
+.rnum{font-size:28px;font-weight:800;margin-bottom:4px}
+.rlbl{font-size:11px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:.5px}
+.c-g{color:#5dca95}.c-r{color:#f07b7b}.c-b{color:#7eb8f7}.c-y{color:#f7c75a}
+.cert-box{background:rgba(126,184,247,0.07);border:1px solid rgba(126,184,247,0.15);border-radius:14px;padding:14px 16px;width:100%;font-size:13px;color:rgba(255,255,255,0.5);text-align:center;line-height:1.5}
+
+/* ===== CREATE RESULT ===== */
+#createResultScreen{align-items:center;justify-content:center;padding:28px}
+.cr-wrap{width:100%;max-width:380px;text-align:center}
+.cr-icon{font-size:64px;margin-bottom:16px}
+.cr-title{font-size:22px;font-weight:800;margin-bottom:8px}
+.cr-sub{font-size:14px;color:rgba(255,255,255,0.45);margin-bottom:28px}
+.cr-code-box{background:rgba(93,202,149,0.08);border:2px solid rgba(93,202,149,0.3);border-radius:20px;padding:24px;margin-bottom:20px}
+.cr-code-label{font-size:11px;color:rgba(93,202,149,0.6);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.cr-code{font-size:44px;font-weight:900;color:#5dca95;letter-spacing:6px}
+.cr-info{font-size:13px;color:rgba(255,255,255,0.4);margin-top:8px}
+.cr-btns{display:flex;flex-direction:column;gap:10px}
+
+/* ===== LOADER ===== */
+#loader{position:fixed;inset:0;background:#0f1923;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999}
+.spin{width:44px;height:44px;border:3px solid rgba(126,184,247,0.15);border-top-color:#7eb8f7;border-radius:50%;animation:sp .8s linear infinite;margin-bottom:14px}
+@keyframes sp{to{transform:rotate(360deg)}}
+#loader p{color:rgba(255,255,255,0.35);font-size:14px}
 </style>
 </head>
 <body>
 
 <div id="loader"><div class="spin"></div><p>Yuklanmoqda...</p></div>
 
-<div class="screen" id="enterScreen">
-  <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px;">
-    <div class="logo">
-      <div class="logo-icon">📐</div>
-      <h1>Milliy Sertifikat</h1>
-      <p>Test platformasi</p>
+<!-- HOME -->
+<div class="screen" id="homeScreen">
+  <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:28px;gap:16px">
+    <div class="home-logo">
+      <div class="home-icon">🎓</div>
+      <div class="home-title">Milliy Sertifikat</div>
+      <div class="home-sub">Test platformasi</div>
     </div>
-    <div class="card">
-      <label>Test kodini kiriting</label>
-      <input type="text" class="code-input" id="codeInput" placeholder="ABC123" maxlength="8" autocomplete="off">
-      <p class="err" id="errMsg">Test topilmadi. Kodni tekshiring.</p>
-      <button class="btn btn-blue" id="startBtn" onclick="startTest()">Testni boshlash →</button>
+    <div class="home-cards">
+      <div class="home-card hc-join" onclick="showScreen('enterScreen')">
+        <div class="hc-icon">📝</div>
+        <div class="hc-text">
+          <h3>Testga kirish</h3>
+          <p>Test kodini kiritib imtihon topshiring va sertifikat oling</p>
+        </div>
+      </div>
+      <div class="home-card hc-create" onclick="showScreen('createScreen')">
+        <div class="hc-icon">➕</div>
+        <div class="hc-text">
+          <h3>Test yaratish</h3>
+          <p>O'z testingizni yarating va do'stlaringizga yuboring</p>
+        </div>
+      </div>
     </div>
   </div>
 </div>
 
+<!-- ENTER CODE -->
+<div class="screen" id="enterScreen">
+  <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px">
+    <div class="enter-wrap">
+      <div class="back-btn" onclick="showScreen('homeScreen')">← Orqaga</div>
+      <div class="section-title">Testga kirish</div>
+      <div class="section-sub">Admin bergan test kodini kiriting</div>
+      <label class="inp-label">Test kodi</label>
+      <input type="text" class="code-inp" id="codeInput" placeholder="ABC123" maxlength="8" autocomplete="off">
+      <p class="err-msg" id="errMsg">❌ Test topilmadi. Kodni tekshiring.</p>
+      <button class="btn btn-blue" id="startBtn" onclick="joinTest()">Testni boshlash →</button>
+    </div>
+  </div>
+</div>
+
+<!-- CREATE TEST -->
+<div class="screen" id="createScreen">
+  <div class="create-header">
+    <div class="ch-top">
+      <div class="ch-back" onclick="showScreen('homeScreen')">←</div>
+      <div class="ch-title">Test yaratish</div>
+    </div>
+    <div class="ch-sub">Kalitlarni kiriting va test kodini oling</div>
+  </div>
+  <div class="create-body">
+    <div class="form-group">
+      <label class="form-label">Fan</label>
+      <select class="form-select" id="subjectSel">
+        <option value="Matematika">📐 Matematika</option>
+        <option value="Fizika">⚡ Fizika</option>
+        <option value="Kimyo">🧪 Kimyo</option>
+        <option value="Biologiya">🌿 Biologiya</option>
+        <option value="Ingliz tili">🌍 Ingliz tili</option>
+        <option value="Ona tili">📖 Ona tili</option>
+        <option value="Tarix">📜 Tarix</option>
+        <option value="Geografiya">🌏 Geografiya</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Kalitlar (javoblar)</label>
+      <textarea id="answersInp" class="form-select" style="min-height:100px;resize:none;font-family:monospace;font-size:14px;line-height:1.6" placeholder="1A2B3C4D5A&#10;yoki: ABCDABCDAB" oninput="previewKeys()"></textarea>
+    </div>
+    <div id="keysPreview" style="display:none;margin-top:-8px">
+      <div id="keysGrid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:8px"></div>
+      <p style="font-size:12px;color:rgba(255,255,255,0.35)" id="keysCount"></p>
+    </div>
+  </div>
+  <div class="create-footer">
+    <button class="btn btn-green" id="createBtn" onclick="createTest()" style="margin-top:0">✅ Test yaratish</button>
+  </div>
+</div>
+
+<!-- TEST (answering questions) -->
 <div class="screen" id="testScreen">
   <div class="test-header">
     <div class="th-top">
       <span class="th-subject" id="thSubject">MATEMATIKA</span>
-      <span class="th-code" id="thCode">KOD</span>
+      <span class="th-badge" id="thCode">KOD</span>
     </div>
-    <div class="th-info">
-      <span class="th-q" id="thQ">Savol 1/30</span>
-      <span class="th-answered" id="thAns">0 javob</span>
+    <div class="th-progress">
+      <span class="th-num" id="thNum">1-savol</span>
+      <span class="th-count" id="thCount">1/30</span>
     </div>
     <div class="prog-bar"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+    <div class="dots-row" id="dotsRow"></div>
   </div>
-  <div class="test-body">
-    <div class="overview" id="overview"></div>
-    <div class="q-label" id="qLabel">1-SAVOL</div>
-    <div class="options" id="options"></div>
+  <div class="test-body" id="testBody">
+    <div class="q-slide visible" id="qSlide">
+      <div class="q-num-badge" id="qBadge">📌 1-savol</div>
+      <div class="q-text" id="qText">Javobingizni tanlang</div>
+      <div class="opts" id="optsContainer"></div>
+    </div>
   </div>
   <div class="test-footer">
-    <div class="nav">
-      <button class="btn-prev" id="prevBtn" onclick="prevQ()">← Oldingi</button>
-      <button class="btn-next" id="nextBtn" onclick="nextQ()">Keyingi →</button>
+    <div class="nav-row">
+      <button class="nav-prev" id="prevBtn" onclick="prevQ()">← Oldingi</button>
+      <button class="nav-next" id="nextBtn" onclick="nextQ()">Keyingi →</button>
     </div>
   </div>
 </div>
 
+<!-- RESULT -->
 <div class="screen" id="resultScreen">
-  <div class="res-circle" id="resCircle">
-    <span class="res-pct" id="resPct">0%</span>
-    <span class="res-grade-sm" id="resGradeSm">-</span>
+  <div class="res-wrap">
+    <div class="res-circle" id="resCircle">
+      <span class="res-pct" id="resPct">0%</span>
+      <span class="res-gsm" id="resGsm">-</span>
+    </div>
+    <div class="res-title" id="resTitle">NATIJA</div>
+    <div class="res-sub" id="resSub">-</div>
+    <div class="res-grid">
+      <div class="rcard"><div class="rnum c-g" id="rCorrect">0</div><div class="rlbl">To'g'ri</div></div>
+      <div class="rcard"><div class="rnum c-r" id="rWrong">0</div><div class="rlbl">Noto'g'ri</div></div>
+      <div class="rcard"><div class="rnum c-b" id="rTotal">0</div><div class="rlbl">Jami</div></div>
+      <div class="rcard"><div class="rnum c-y" id="rPct2">0%</div><div class="rlbl">Foiz</div></div>
+    </div>
+    <div class="cert-box" id="certBox">📜 Test yakunlangach sertifikat botda yuboriladi</div>
   </div>
-  <h2 class="res-title" id="resTitle">NATIJA</h2>
-  <p class="res-sub" id="resSub">-</p>
-  <div class="res-grid">
-    <div class="res-card"><div class="res-num c-green" id="rCorrect">0</div><div class="res-lbl">To'g'ri</div></div>
-    <div class="res-card"><div class="res-num c-red" id="rWrong">0</div><div class="res-lbl">Noto'g'ri</div></div>
-    <div class="res-card"><div class="res-num c-blue" id="rTotal">0</div><div class="res-lbl">Jami</div></div>
-    <div class="res-card"><div class="res-num c-yellow" id="rRank">-</div><div class="res-lbl">O'rin</div></div>
+</div>
+
+<!-- CREATE RESULT -->
+<div class="screen" id="createResultScreen">
+  <div class="cr-wrap">
+    <div class="cr-icon">🎉</div>
+    <div class="cr-title">Test yaratildi!</div>
+    <div class="cr-sub">Quyidagi kodni do'stlaringizga yuboring</div>
+    <div class="cr-code-box">
+      <div class="cr-code-label">Test kodi</div>
+      <div class="cr-code" id="crCode">-</div>
+      <div class="cr-info" id="crInfo">-</div>
+    </div>
+    <div class="cr-btns">
+      <button class="btn btn-green" onclick="copyCode()" id="copyBtn">📋 Kodni nusxalash</button>
+      <button class="btn btn-blue" onclick="showScreen('homeScreen')">🏠 Bosh sahifa</button>
+    </div>
   </div>
-  <div class="cert-box">📜 Test yakunlangach sertifikat botda yuboriladi</div>
 </div>
 
 <script>
-const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-if (tg) { tg.ready(); tg.expand(); }
-
-const BASE_URL = 'https://promath.onrender.com';
-let testData = null, curQ = 0, answers = {};
+const tg = window.Telegram?.WebApp || null;
+if(tg){tg.ready();tg.expand();}
+const BASE = 'https://promath.onrender.com';
 let userId = tg?.initDataUnsafe?.user?.id || 0;
-let userName = tg?.initDataUnsafe?.user?.first_name || "Mehmon";
+let userName = tg?.initDataUnsafe?.user?.first_name || 'Mehmon';
 
-// Hide loader and show enter screen
-window.addEventListener('load', () => {
-  document.getElementById('loader').style.display = 'none';
-  showScreen('enterScreen');
+let testData=null, curQ=0, answers={}, animating=false;
+let parsedKeys={}, createdCode='';
+
+window.addEventListener('load',()=>{
+  document.getElementById('loader').style.display='none';
+  showScreen('homeScreen');
 });
 
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-}
-
-async function startTest() {
-  const code = document.getElementById('codeInput').value.trim().toUpperCase();
-  if (!code) return;
-  const btn = document.getElementById('startBtn');
-  btn.disabled = true;
-  btn.textContent = 'Tekshirilmoqda...';
-  document.getElementById('errMsg').style.display = 'none';
-  try {
-    const res = await fetch(`${BASE_URL}/api/test/${code}`);
-    if (!res.ok) throw new Error();
-    testData = await res.json();
-    loadTest();
-  } catch {
-    document.getElementById('errMsg').style.display = 'block';
-    btn.disabled = false;
-    btn.textContent = 'Testni boshlash →';
+  if(tg){
+    if(id==='homeScreen') tg.BackButton.hide();
+    else tg.BackButton.show();
   }
 }
 
-function loadTest() {
-  document.getElementById('thSubject').textContent = testData.subject.toUpperCase();
-  document.getElementById('thCode').textContent = testData.test_code;
-  showQ(0);
-  showScreen('testScreen');
-  if (tg) tg.BackButton.show();
+// ===== JOIN TEST =====
+async function joinTest(){
+  const code=document.getElementById('codeInput').value.trim().toUpperCase();
+  if(!code) return;
+  const btn=document.getElementById('startBtn');
+  btn.disabled=true; btn.textContent='Tekshirilmoqda...';
+  document.getElementById('errMsg').style.display='none';
+  try{
+    const res=await fetch(`${BASE}/api/test/${code}`);
+    if(!res.ok) throw new Error();
+    testData=await res.json();
+    curQ=0; answers={};
+    loadTestScreen();
+  }catch{
+    document.getElementById('errMsg').style.display='block';
+    btn.disabled=false; btn.textContent='Testni boshlash →';
+  }
 }
 
-function buildOverview() {
-  const c = document.getElementById('overview');
-  c.innerHTML = '';
-  for (let i = 0; i < testData.total_questions; i++) {
-    const d = document.createElement('div');
-    d.className = 'dot' + (answers[i+1] ? ' answered' : '') + (i === curQ ? ' current' : '');
-    d.textContent = i + 1;
-    d.onclick = () => showQ(i);
+function loadTestScreen(){
+  document.getElementById('thSubject').textContent=testData.subject.toUpperCase();
+  document.getElementById('thCode').textContent=testData.test_code;
+  buildDots();
+  renderQ(0,'none');
+  showScreen('testScreen');
+}
+
+function buildDots(){
+  const c=document.getElementById('dotsRow');
+  c.innerHTML='';
+  for(let i=0;i<testData.total_questions;i++){
+    const d=document.createElement('div');
+    d.className='pdot'+(answers[i+1]?' answered':'')+(i===curQ?' current':'');
+    d.onclick=()=>goTo(i);
     c.appendChild(d);
   }
 }
 
-function showQ(idx) {
-  curQ = idx;
-  const total = testData.total_questions;
-  const answeredCount = Object.keys(answers).length;
-  document.getElementById('thQ').textContent = `Savol ${idx+1}/${total}`;
-  document.getElementById('thAns').textContent = `${answeredCount} javob`;
-  document.getElementById('progFill').style.width = `${((idx+1)/total)*100}%`;
-  document.getElementById('qLabel').textContent = `${idx+1}-SAVOL`;
+function renderQ(idx, dir){
+  curQ=idx;
+  const total=testData.total_questions;
+  document.getElementById('thNum').textContent=`${idx+1}-savol`;
+  document.getElementById('thCount').textContent=`${idx+1}/${total}`;
+  document.getElementById('progFill').style.width=`${((idx+1)/total)*100}%`;
+  document.getElementById('qBadge').textContent=`📌 ${idx+1}-savol`;
+  document.getElementById('qText').textContent=`${idx+1}-savol uchun to'g'ri javobni tanlang:`;
 
-  const opts = document.getElementById('options');
-  opts.innerHTML = '';
-  ['A','B','C','D'].forEach(l => {
-    const d = document.createElement('div');
-    d.className = 'opt' + (answers[idx+1] === l ? ' sel' : '');
-    d.innerHTML = `<div class="opt-l">${l}</div><div class="opt-t">${l} variant</div>`;
-    d.onclick = () => { answers[idx+1] = l; showQ(idx); };
+  const opts=document.getElementById('optsContainer');
+  opts.innerHTML='';
+  ['A','B','C','D'].forEach(l=>{
+    const d=document.createElement('div');
+    d.className='opt'+(answers[idx+1]===l?' sel':'');
+    d.innerHTML=`<div class="opt-letter">${l}</div><div class="opt-text">${l} variant</div>`;
+    d.onclick=()=>selectAns(idx+1,l);
     opts.appendChild(d);
   });
 
-  document.getElementById('prevBtn').style.display = idx === 0 ? 'none' : 'flex';
-  const nb = document.getElementById('nextBtn');
-  if (idx === total - 1) {
-    nb.className = 'btn-submit'; nb.textContent = '✅ Yakunlash';
-  } else {
-    nb.className = 'btn-next'; nb.textContent = 'Keyingi →';
+  // Animate
+  if(dir!=='none'){
+    const slide=document.getElementById('qSlide');
+    slide.className='q-slide '+(dir==='right'?'entering-right':'entering-left');
+    requestAnimationFrame(()=>{
+      requestAnimationFrame(()=>{
+        slide.className='q-slide visible';
+      });
+    });
   }
-  buildOverview();
+
+  // nav buttons
+  document.getElementById('prevBtn').style.visibility=idx===0?'hidden':'visible';
+  const nb=document.getElementById('nextBtn');
+  if(idx===total-1){nb.className='nav-submit';nb.textContent='✅ Yakunlash';}
+  else{nb.className='nav-next';nb.textContent='Keyingi →';}
+
+  buildDots();
 }
 
-function prevQ() { if (curQ > 0) showQ(curQ - 1); }
-function nextQ() {
-  if (curQ < testData.total_questions - 1) showQ(curQ + 1);
+function selectAns(qNum,letter){
+  answers[qNum]=letter;
+  // Update opts UI
+  document.querySelectorAll('.opt').forEach((el,i)=>{
+    const l=['A','B','C','D'][i];
+    if(l===letter){el.classList.add('sel');el.querySelector('.opt-letter').style.background='#7eb8f7';el.querySelector('.opt-letter').style.color='#0d2137';}
+    else{el.classList.remove('sel');el.querySelector('.opt-letter').style.background='';el.querySelector('.opt-letter').style.color='';}
+  });
+  buildDots();
+  // Auto advance after short delay
+  if(curQ<testData.total_questions-1){
+    setTimeout(()=>goTo(curQ+1,'right'),400);
+  }
+}
+
+function goTo(idx){
+  if(animating||idx===curQ) return;
+  const dir=idx>curQ?'right':'left';
+  animating=true;
+  const slide=document.getElementById('qSlide');
+  slide.className='q-slide '+(dir==='right'?'leaving-left':'leaving-right');
+  setTimeout(()=>{renderQ(idx,dir);animating=false;},200);
+}
+
+function prevQ(){if(curQ>0) goTo(curQ-1);}
+function nextQ(){
+  if(curQ<testData.total_questions-1) goTo(curQ+1);
   else submitTest();
 }
 
-async function submitTest() {
-  const total = testData.total_questions;
-  const unanswered = total - Object.keys(answers).length;
-  if (unanswered > 0 && !confirm(`${unanswered} ta savolga javob bermagansiz. Baribir yuborasizmi?`)) return;
-
-  document.getElementById('loader').style.display = 'flex';
-  const payload = {};
-  for (let i = 1; i <= total; i++) payload[String(i)] = answers[i] || '?';
-
-  try {
-    const res = await fetch(`${BASE_URL}/api/submit`, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ test_code: testData.test_code, user_id: userId, user_name: userName, answers: payload })
+async function submitTest(){
+  const total=testData.total_questions;
+  const unanswered=total-Object.keys(answers).length;
+  if(unanswered>0&&!confirm(`${unanswered} ta savolga javob bermagansiz. Baribir yuborasizmi?`)) return;
+  document.getElementById('loader').style.display='flex';
+  const payload={};
+  for(let i=1;i<=total;i++) payload[String(i)]=answers[i]||'?';
+  try{
+    const res=await fetch(`${BASE}/api/submit`,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({test_code:testData.test_code,user_id:userId,user_name:userName,answers:payload})
     });
-    const data = await res.json();
-    document.getElementById('loader').style.display = 'none';
+    const data=await res.json();
+    document.getElementById('loader').style.display='none';
     showResult(data);
-  } catch {
-    document.getElementById('loader').style.display = 'none';
-    alert("Xatolik yuz berdi. Qaytadan urinib ko'ring.");
+  }catch{
+    document.getElementById('loader').style.display='none';
+    alert("Xatolik yuz berdi.");
   }
 }
 
-function showResult(r) {
-  const pct = r.percentage || 0;
-  let grade, sub, color;
-  if (pct >= 85) { grade = "A'LO"; sub = "Ajoyib natija! 🥇"; color = "#7eb8f7"; }
-  else if (pct >= 70) { grade = "YAXSHI"; sub = "Yaxshi natija! 🥈"; color = "#5dca95"; }
-  else if (pct >= 55) { grade = "QONIQARLI"; sub = "Yaxshi harakat! 🥉"; color = "#f7c75a"; }
-  else { grade = "QATNASHDI"; sub = "Keyingi safar ko'proq o'qing 📚"; color = "#f07b7b"; }
-
-  document.getElementById('resPct').textContent = `${pct}%`;
-  document.getElementById('resPct').style.color = color;
-  document.getElementById('resGradeSm').textContent = grade;
-  document.getElementById('resTitle').textContent = grade;
-  document.getElementById('resSub').textContent = sub;
-  document.getElementById('resCircle').style.borderColor = color;
-  document.getElementById('rCorrect').textContent = r.score;
-  document.getElementById('rWrong').textContent = r.total - r.score;
-  document.getElementById('rTotal').textContent = r.total;
-  if (r.already_submitted) document.querySelector('.cert-box').textContent = '✅ Siz bu testni allaqachon topshirgansiz';
+function showResult(r){
+  const pct=r.percentage||0;
+  let grade,sub,color;
+  if(pct>=85){grade="A'LO";sub="Ajoyib natija! 🥇";color="#7eb8f7";}
+  else if(pct>=70){grade="YAXSHI";sub="Yaxshi natija! 🥈";color="#5dca95";}
+  else if(pct>=55){grade="QONIQARLI";sub="Yaxshi harakat! 🥉";color="#f7c75a";}
+  else{grade="QATNASHDI";sub="Keyingi safar ko'proq o'qing 📚";color="#f07b7b";}
+  document.getElementById('resPct').textContent=`${pct}%`;
+  document.getElementById('resPct').style.color=color;
+  document.getElementById('resGsm').textContent=grade;
+  document.getElementById('resTitle').textContent=grade;
+  document.getElementById('resSub').textContent=sub;
+  document.getElementById('resCircle').style.borderColor=color;
+  document.getElementById('rCorrect').textContent=r.score;
+  document.getElementById('rWrong').textContent=(r.total-r.score);
+  document.getElementById('rTotal').textContent=r.total;
+  document.getElementById('rPct2').textContent=`${pct}%`;
+  if(r.already_submitted) document.getElementById('certBox').textContent='✅ Siz bu testni allaqachon topshirgansiz';
   showScreen('resultScreen');
-  if (tg) { tg.MainButton.setText('Yopish'); tg.MainButton.show(); tg.MainButton.onClick(() => tg.close()); }
+  if(tg){tg.MainButton.setText('Yopish');tg.MainButton.show();tg.MainButton.onClick(()=>tg.close());}
 }
 
-document.getElementById('codeInput').addEventListener('keypress', e => { if (e.key === 'Enter') startTest(); });
-if (tg) {
-  tg.BackButton.onClick(() => {
-    if (document.getElementById('testScreen').classList.contains('active')) {
-      if (confirm("Testdan chiqasizmi?")) { showScreen('enterScreen'); tg.BackButton.hide(); }
-    } else tg.close();
+// ===== CREATE TEST =====
+function parseAnswers(text){
+  const res={};
+  const clean=text.toUpperCase().replace(/[\s\-\.,]/g,'');
+  let i=0;
+  while(i<clean.length){
+    let num='';
+    while(i<clean.length&&/\d/.test(clean[i])) num+=clean[i++];
+    if(num&&i<clean.length&&/[A-D]/.test(clean[i])){res[parseInt(num)]=clean[i++];}
+    else i++;
+  }
+  if(Object.keys(res).length===0){
+    const letters=clean.replace(/[^A-D]/g,'');
+    for(let j=0;j<letters.length;j++) res[j+1]=letters[j];
+  }
+  return res;
+}
+
+function previewKeys(){
+  parsedKeys=parseAnswers(document.getElementById('answersInp').value);
+  const count=Object.keys(parsedKeys).length;
+  const prev=document.getElementById('keysPreview');
+  if(count===0){prev.style.display='none';return;}
+  prev.style.display='block';
+  document.getElementById('keysCount').textContent=`${count} ta savol kaliti aniqlandi`;
+  const grid=document.getElementById('keysGrid');
+  grid.innerHTML='';
+  Object.entries(parsedKeys).slice(0,15).forEach(([n,v])=>{
+    grid.innerHTML+=`<div style="background:rgba(93,202,149,0.08);border:1px solid rgba(93,202,149,0.2);border-radius:8px;padding:8px 4px;text-align:center"><span style="font-size:10px;color:rgba(255,255,255,0.3);display:block">${n}</span><span style="font-size:16px;font-weight:700;color:#5dca95">${v}</span></div>`;
+  });
+  if(count>15) grid.innerHTML+=`<div style="background:rgba(255,255,255,0.04);border-radius:8px;padding:8px;display:flex;align-items:center;justify-content:center;font-size:12px;color:rgba(255,255,255,0.3)">+${count-15}</div>`;
+}
+
+async function createTest(){
+  if(Object.keys(parsedKeys).length===0){alert('Kalitlarni kiriting!');return;}
+  const subject=document.getElementById('subjectSel').value;
+  const btn=document.getElementById('createBtn');
+  btn.disabled=true;btn.textContent='Yaratilmoqda...';
+  const answersStr=Object.entries(parsedKeys).map(([k,v])=>`${k}${v}`).join('');
+  try{
+    const res=await fetch(`${BASE}/api/submit-create`,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({user_id:userId,user_name:userName,answers:answersStr,subject})
+    });
+    const data=await res.json();
+    if(data.error) throw new Error(data.error);
+    createdCode=data.test_code;
+    document.getElementById('crCode').textContent=data.test_code;
+    document.getElementById('crInfo').textContent=`${data.total_questions} ta savol · ${subject}`;
+    showScreen('createResultScreen');
+    if(tg) tg.HapticFeedback.notificationOccurred('success');
+  }catch(e){
+    alert('Xatolik: '+(e.message||'Qaytadan urinib ko\'ring'));
+  }
+  btn.disabled=false;btn.textContent='✅ Test yaratish';
+}
+
+function copyCode(){
+  if(navigator.clipboard) navigator.clipboard.writeText(createdCode);
+  document.getElementById('copyBtn').textContent='✅ Nusxalandi!';
+  setTimeout(()=>document.getElementById('copyBtn').textContent='📋 Kodni nusxalash',2000);
+  if(tg) tg.HapticFeedback.impactOccurred('light');
+}
+
+document.getElementById('codeInput').addEventListener('keypress',e=>{if(e.key==='Enter') joinTest();});
+if(tg){
+  tg.BackButton.onClick(()=>{
+    const active=document.querySelector('.screen.active');
+    if(active&&active.id==='testScreen'){
+      if(confirm('Testdan chiqasizmi?')){showScreen('homeScreen');}
+    } else showScreen('homeScreen');
   });
 }
 </script>
